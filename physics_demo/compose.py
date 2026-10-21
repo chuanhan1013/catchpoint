@@ -16,7 +16,8 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 VID = os.path.join(HERE, "videos")
 RAW = os.path.join(VID, "raw")
-FONT_DIR = "C:/Windows/Fonts"
+import os as _os
+FONT_DIR = _os.path.join(_os.environ.get("WINDIR", "C:/Windows"), "Fonts")  # Windows system fonts; set WINDIR or edit for other OSes
 FOOTER = "Physics simulation: pretrained Unitree G1 policy with simulated paretic weakness \u2014 not a patient model"
 CTRL_NAME = {"B0": "B0 \u00b7 No assistance",
              "B1": "B1 \u00b7 Threshold lock (COM > 8 cm \u2192 lock)",

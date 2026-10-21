@@ -1,6 +1,15 @@
 """Draw callouts on annotated_base.png -> annotated.png (system python + Pillow).
 python callouts.py [--preview]"""
 import json, os, sys
+import os as _os
+def _font_path(name):
+    """System font if present (Windows: %WINDIR%/Fonts), else matplotlib's bundled DejaVu Sans."""
+    win = _os.path.join(_os.environ.get("WINDIR", ""), "Fonts", name)
+    if _os.path.exists(win):
+        return win
+    import matplotlib
+    bold = "b" in name.replace(".ttf", "")[-2:]
+    return _os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf")
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 HERE = os.path.dirname(os.path.abspath(__file__))
 prev = "--preview" in sys.argv
@@ -11,8 +20,8 @@ S = W / 1920.0
 A = {k: (v[0] * W / meta["size"][0], v[1] * H / meta["size"][1]) for k, v in meta["anchors"].items()}
 
 TEAL, INK = (31, 111, 120), (30, 42, 51)
-font = ImageFont.truetype("C:/Windows/Fonts/segoeui.ttf", int(30 * S))
-fontb = ImageFont.truetype("C:/Windows/Fonts/segoeuib.ttf", int(30 * S))
+font = ImageFont.truetype(_font_path("segoeui.ttf"), int(30 * S))
+fontb = ImageFont.truetype(_font_path("segoeuib.ttf"), int(30 * S))
 
 # (key, label lines, side, label centre y as fraction of H)
 L = [

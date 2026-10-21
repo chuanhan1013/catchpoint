@@ -1,8 +1,17 @@
 """Compose story_strip.png (3600x1200) from the three stills + labels. python story_strip.py"""
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import os as _os
+def _font_path(name):
+    """System font if present (Windows: %WINDIR%/Fonts), else matplotlib's bundled DejaVu Sans."""
+    win = _os.path.join(_os.environ.get("WINDIR", ""), "Fonts", name)
+    if _os.path.exists(win):
+        return win
+    import matplotlib
+    bold = "b" in name.replace(".ttf", "")[-2:]
+    return _os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf")
 HERE = os.path.dirname(os.path.abspath(__file__))
-font = ImageFont.truetype("C:/Windows/Fonts/segoeui.ttf", 40)
+font = ImageFont.truetype(_font_path("segoeui.ttf"), 40)
 INK = (30, 42, 51)
 items = [("green", "#3A9D5D", "Cables slack — patient steps alone"),
          ("amber", "#E0A030", "Two cables pull the pelvis back to centre"),
