@@ -9,7 +9,7 @@
         {"title": "Same push, three controllers", "desc": "No robot falls; the threshold lock catches; CatchPoint recovers it with a small nudge.", "src": "assets/video/compare_b.mp4", "poster": "assets/video/compare_b.jpg", "tag": "180 N push", "status": "ready", "wide": true},
         {"title": "Before / after push-recovery fine-tuning (small push)", "desc": "Pretrained vs PPO fine-tuned policy, with and without CatchPoint.", "src": "assets/video/beforeafter_a.mp4", "poster": "assets/video/beforeafter_a.jpg", "tag": "100 N push", "status": "ready"},
         {"title": "Before / after fine-tuning (medium push)", "desc": "The pretrained policy falls without help; CatchPoint nudges it back.", "src": "assets/video/beforeafter_b.mp4", "poster": "assets/video/beforeafter_b.jpg", "tag": "180 N push", "status": "ready"},
-        {"title": "Before / after fine-tuning (large push)", "desc": "Only the catch can save the pretrained policy.", "src": "assets/video/beforeafter_c.mp4", "poster": "assets/video/beforeafter_c.jpg", "tag": "300 N push", "status": "ready"}
+        {"title": "Before / after fine-tuning (large push)", "desc": "Only the catch can save the pretrained policy.", "src": "assets/video/beforeafter_c.mp4", "poster": "assets/video/beforeafter_c.jpg", "tag": "300 N push", "status": "ready", "wide": true}
       ]
     },
     {

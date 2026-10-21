@@ -89,6 +89,7 @@ figure{margin:0}
 .vsec p.b{color:var(--muted);margin:0 0 16px;font-size:15.5px}
 .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .vcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.vgrid.two{grid-template-columns:repeat(2,1fr)}
 .vcard.wide{grid-column:1/-1}
 .vcard video,.vcard .slot{width:100%;aspect-ratio:16/9;background:#0b1316;object-fit:contain}
 .vcard.wide video{aspect-ratio:auto;max-height:640px}
@@ -102,6 +103,7 @@ figure{margin:0}
 .chart{margin-top:8px}
 .crow{display:grid;grid-template-columns:230px 1fr;gap:14px;align-items:center;margin:10px 0}
 .crow .lab{font-size:15px;font-weight:500;line-height:1.25}
+.fl{font:400 12px "IBM Plex Mono",monospace;color:var(--muted);margin-top:2px}
 .crow.cp .lab{color:var(--accent);font-weight:700}
 .bar{display:flex;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--surface)}
 .crow.cp .bar{outline:3px solid var(--accent);outline-offset:2px}
@@ -143,7 +145,7 @@ footer ul{margin:0;padding-left:18px}
 .theme{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;font:500 12px "IBM Plex Mono",monospace;padding:5px 10px;cursor:pointer}
 @media (max-width:900px){
   section{padding:52px 0}
-  .g3,.g2,.vgrid,.docs,.rgrid,.hw,.states{grid-template-columns:1fr}
+  .g3,.g2,.vgrid,.vgrid.two,.docs,.rgrid,.hw,.states{grid-template-columns:1fr}
   .crow{grid-template-columns:1fr;gap:4px}
   .seg{font-size:12px}
   .nums{grid-template-columns:1fr 1fr}
@@ -323,7 +325,7 @@ const h1=v=>(Math.round(v*10)/10).toFixed(1);
 (function chart(){
   const el=document.getElementById('chart');
   const segs=[["alone","var(--seg-alone)",""],["nudge","var(--seg-nudge)","nudge"],["caught","var(--seg-catch)",""],["fall","var(--seg-fall)",""]];
-  el.innerHTML=RESULTS.map(r=>`<div class="crow${r.cp?' cp':''}"><div class="lab">${r.label}</div><div class="bar">${
+  el.innerHTML=RESULTS.map(r=>`<div class="crow${r.cp?' cp':''}"><div class="lab">${r.label}<div class="fl">falls ${h1(r.fall)}%</div></div><div class="bar">${
     segs.map(([k,c,cl])=>r[k]>0?`<div class="seg ${cl}" style="width:${r[k]}%;background:${c}" title="${k}: ${h1(r[k])}%">${r[k]>=5?Math.round(r[k])+'%':''}</div>`:'').join('')}</div></div>`).join('');
   const cp=RESULTS[4],b1=RESULTS[1];
   const cpOwn=cp.alone+cp.nudge,b1Own=b1.alone+b1.nudge;
@@ -337,7 +339,7 @@ const h1=v=>(Math.round(v*10)/10).toFixed(1);
   const host=document.getElementById('videos');
   try{
     const m=await (await fetch('site/videos.json',{cache:'no-cache'})).json();
-    host.innerHTML=m.sections.map(s=>`<div class="vsec"><h3>${s.title}</h3><p class="b">${s.blurb||''}</p><div class="vgrid">${
+    host.innerHTML=m.sections.map(s=>`<div class="vsec"><h3>${s.title}</h3><p class="b">${s.blurb||''}</p><div class="vgrid${s.id==='v2'?'':' two'}">${
       s.items.map(v=>{
         const meta=`<div class="meta">${v.tag?`<span class="pill">${v.tag}</span>`:''}<h4>${v.title}</h4><p>${v.desc||''}</p></div>`;
         const media=v.status==='ready'
