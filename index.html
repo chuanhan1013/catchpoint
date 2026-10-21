@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatchPoint</title>
+<meta name="description" content="CatchPoint: a recoverability-aware safety layer for robotic balance trainers. Let them step. Catch only when they can't.">
+<meta property="og:title" content="CatchPoint">
+<meta property="og:description" content="Let them step. Catch only when they can't. Simulation-validated concept, NUS ME5412.">
+<meta property="og:image" content="assets/img/hero_d3.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#1F6F78; --green:#3A9D5D; --amber:#E0A030; --red:#C8443A; --grey:#9AA0A6;
+  --bg:#f6f8f9; --surface:#ffffff; --surface2:#eaf0f2; --fg:#16242b; --muted:#50636c; --border:#cfd9de;
+  --accent:#1F6F78; --accent-fg:#ffffff; --tealbg:#e2f0f1; --shadow:0 1px 2px rgba(20,40,50,.06),0 8px 24px rgba(20,40,50,.07);
+  --seg-alone:#1F6F78; --seg-nudge:#E0A030; --seg-catch:#9AA0A6; --seg-fall:#C8443A;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1619; --surface:#182226; --surface2:#222f35; --fg:#e4edf0; --muted:#a9bcc4; --border:#34454d;
+    --accent:#62b2b4; --accent-fg:#0b1214; --tealbg:#173238; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+    --seg-alone:#3f9aa0; --seg-nudge:#E0A030; --seg-catch:#7f868c; --seg-fall:#d9574c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1619; --surface:#182226; --surface2:#222f35; --fg:#e4edf0; --muted:#a9bcc4; --border:#34454d;
+  --accent:#62b2b4; --accent-fg:#0b1214; --tealbg:#173238; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  --seg-alone:#3f9aa0; --seg-nudge:#E0A030; --seg-catch:#7f868c; --seg-fall:#d9574c;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.6 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+img,video,svg{max-width:100%;display:block}
+a{color:var(--accent);text-underline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+h1,h2,h3{line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(26px,4vw,38px);margin-bottom:12px}
+h3{font-size:19px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+.eyebrow{font:500 12.5px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.lead{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:720px;margin:0 0 28px}
+section{padding:72px 0}
+section.alt{background:var(--surface2)}
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+nav .wrap{display:flex;align-items:center;gap:18px;height:54px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav b{font-weight:700;color:var(--fg);margin-right:6px}
+nav a{font-size:14.5px;color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--accent)}
+/* hero */
+.hero{position:relative;min-height:min(86vh,760px);display:flex;align-items:flex-end;color:#fff;background:#10262b url("assets/img/hero_d3.jpg") center/cover no-repeat;padding:0}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,22,26,.15) 0%,rgba(8,22,26,.35) 45%,rgba(8,22,26,.88) 100%)}
+.hero .wrap{position:relative;padding-top:120px;padding-bottom:56px;width:100%}
+.hero h1{font-size:clamp(52px,10vw,104px);letter-spacing:-.03em}
+.hero p.tag{font-size:clamp(20px,3.2vw,30px);margin:10px 0 26px;font-weight:500;max-width:760px}
+.hero small{display:block;margin-top:22px;opacity:.8;font-size:13.5px;max-width:680px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:600;font-size:16px;text-decoration:none;border:2px solid transparent;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--green);color:#fff}
+.btn.ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.7)}
+.btn.solid{background:var(--accent);color:var(--accent-fg)}
+.btn.line{border-color:var(--accent);color:var(--accent)}
+/* cards */
+.grid{display:grid;gap:20px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.stat .n{font:700 clamp(44px,6vw,60px)/1 "IBM Plex Sans",sans-serif;color:var(--red);letter-spacing:-.03em}
+.stat:nth-child(2) .n{color:var(--amber)} .stat:nth-child(3) .n{color:var(--teal)}
+.stat p{margin:10px 0 14px}
+.cite{font-size:13.5px;color:var(--muted)}
+.fig{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.fig img{width:100%;height:auto}
+.fig figcaption{padding:12px 18px;font-size:14px;color:var(--muted)}
+figure{margin:0}
+.states{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.state{border-radius:14px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);border-top-width:5px}
+.state.g{border-top-color:var(--green)} .state.a{border-top-color:var(--amber)} .state.r{border-top-color:var(--red)}
+.state b{display:block;font-size:17px}
+.state span{font-size:15px;color:var(--muted)}
+/* videos */
+.vsec{margin-top:40px}
+.vsec h3{margin-bottom:4px}
+.vsec p.b{color:var(--muted);margin:0 0 16px;font-size:15.5px}
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.vcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.vcard.wide{grid-column:1/-1}
+.vcard video,.vcard .slot{width:100%;aspect-ratio:16/9;background:#0b1316;object-fit:contain}
+.vcard.wide video{aspect-ratio:auto;max-height:640px}
+.vcard .meta{padding:14px 18px 16px}
+.vcard .meta h4{margin:0 0 4px;font-size:16.5px}
+.vcard .meta p{margin:0;font-size:14.5px;color:var(--muted)}
+.pill{display:inline-block;font:500 11.5px/1 "IBM Plex Mono",monospace;padding:4px 8px;border-radius:999px;background:var(--tealbg);color:var(--accent);margin-bottom:8px}
+.slot{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#9fb3ba;font:500 14px "IBM Plex Mono",monospace;border-bottom:1px dashed var(--border);background:repeating-linear-gradient(45deg,#0f1b1f,#0f1b1f 12px,#121f24 12px,#121f24 24px)}
+.slot b{font-size:17px;color:#cfe0e5}
+/* chart */
+.chart{margin-top:8px}
+.crow{display:grid;grid-template-columns:230px 1fr;gap:14px;align-items:center;margin:10px 0}
+.crow .lab{font-size:15px;font-weight:500;line-height:1.25}
+.crow.cp .lab{color:var(--accent);font-weight:700}
+.bar{display:flex;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--surface)}
+.crow.cp .bar{outline:3px solid var(--accent);outline-offset:2px}
+.seg{display:flex;align-items:center;justify-content:center;color:#fff;font:600 14px "IBM Plex Mono",monospace;min-width:0;white-space:nowrap;overflow:hidden}
+.seg.nudge{color:#1a1204}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 0 14px;font-size:14.5px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+.callout{background:var(--tealbg);border-left:5px solid var(--accent);border-radius:12px;padding:18px 20px}
+.callout .big{font:700 clamp(32px,5vw,46px)/1.1 "IBM Plex Sans",sans-serif;color:var(--accent)}
+.caveat{font-size:14.5px;color:var(--muted);margin-top:16px}
+.rgrid{display:grid;grid-template-columns:1.9fr 1fr;gap:24px;align-items:start}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child,td:first-child{text-align:left}
+th{font:500 12.5px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+tr.hl td{background:var(--tealbg);font-weight:600}
+.tw{overflow-x:auto}
+/* hardware */
+.hw{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.num{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.num b{display:block;font:700 28px/1.1 "IBM Plex Sans",sans-serif;color:var(--accent);margin-bottom:4px}
+.num span{font-size:13.5px;color:var(--muted);line-height:1.35;display:block}
+.warn{display:inline-block;margin-top:14px;font:500 13px "IBM Plex Mono",monospace;background:var(--amber);color:#1a1204;padding:6px 12px;border-radius:999px}
+.quote{font-size:14.5px;color:var(--muted);margin-top:14px}
+/* sim */
+.simframe{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.simframe iframe{width:100%;height:min(86vh,860px);border:0;display:block}
+/* docs */
+.docs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.doc{display:block;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.doc:hover{border-color:var(--accent)}
+.doc b{display:block;margin-bottom:4px}
+.doc span{font-size:14.5px;color:var(--muted)}
+footer{padding:48px 0 64px;background:var(--surface);border-top:1px solid var(--border);font-size:14.5px;color:var(--muted)}
+footer h4{color:var(--fg);margin:0 0 8px;font-size:15px}
+footer .disc{background:var(--surface2);border-left:5px solid var(--amber);border-radius:10px;padding:16px 18px;margin-bottom:28px;color:var(--fg)}
+footer ul{margin:0;padding-left:18px}
+.theme{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;font:500 12px "IBM Plex Mono",monospace;padding:5px 10px;cursor:pointer}
+@media (max-width:900px){
+  section{padding:52px 0}
+  .g3,.g2,.vgrid,.docs,.rgrid,.hw,.states{grid-template-columns:1fr}
+  .crow{grid-template-columns:1fr;gap:4px}
+  .seg{font-size:12px}
+  .nums{grid-template-columns:1fr 1fr}
+}
+@media (max-width:480px){
+  body{font-size:16px}
+  .wrap{padding:0 16px}
+  .hero{min-height:620px}
+  .btn{padding:12px 18px;font-size:15px}
+  .num b{font-size:23px}
+  th,td{padding:8px 6px;font-size:13.5px}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <b>CatchPoint</b>
+  <a href="#problem">Problem</a><a href="#idea">Idea</a><a href="#demos">Demos</a><a href="#results">Results</a><a href="#hardware">Hardware</a><a href="#simulator">Simulator</a><a href="#plan">Team plan</a><a href="#documents">Documents</a>
+  <button class="theme" id="themeBtn" type="button" aria-label="Toggle theme">theme</button>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow" style="color:#bfe3e5">NUS ME5412 &middot; Robotics for Healthcare</div>
+    <h1>CatchPoint</h1>
+    <p class="tag">Let them step. Catch only when they can&rsquo;t.</p>
+    <div class="btns">
+      <a class="btn primary" href="#demos">&#9654; Watch the demo</a>
+      <a class="btn ghost" href="#simulator">Try the simulator</a>
+    </div>
+    <small>Concept render of design D3 (unbuilt, unvalidated). Blender; mannequin Mixamo/Adobe via three.js examples; HDRI Poly Haven (CC0).</small>
+  </div>
+</header>
+
+<section id="problem"><div class="wrap">
+  <div class="eyebrow">The problem</div>
+  <h2>Recovery steps prevent falls &mdash; but practising them is risky</h2>
+  <p class="lead">The skill that stops a fall is a quick recovery step. It has to be practised under a real loss of balance, which is dangerous, so therapists and robots tend to over-support.</p>
+  <div class="grid g3">
+    <div class="card stat"><div class="n">71%</div><p>of stroke patients still had impaired reactive stepping at discharge.</p><div class="cite">Inness et al., <i>Phys Ther</i> 2014, doi:10.2522/ptj.20130603</div></div>
+    <div class="card stat"><div class="n">14.7%</div><p>fell during inpatient stroke rehabilitation (20 of 136).</p><div class="cite">Mansfield et al., <i>Neurorehabil Neural Repair</i> 2013, doi:10.1177/1545968313478486</div></div>
+    <div class="card stat"><div class="n">684,000</div><p>deaths from falls every year worldwide.</p><div class="cite">World Health Organization, Falls fact sheet, 26 Apr 2021</div></div>
+  </div>
+  <figure class="fig" style="margin-top:28px">
+    <img src="assets/img/threshold_problem.jpg" alt="Low threshold locks early so the patient never practises; high threshold locks late and the patient falls anyway" loading="lazy">
+    <figcaption>Today&rsquo;s threshold-and-lock robots lock too early (no practice) or too late (response takes 0.28&ndash;0.8 s, they fall anyway). A single threshold cannot do both jobs. Lock delays: MRBA 0.28 s, IMU walker 0.8 s.</figcaption>
+  </figure>
+</div></section>
+
+<section id="idea" class="alt"><div class="wrap">
+  <div class="eyebrow">The idea</div>
+  <h2>Help only when a step can no longer save them</h2>
+  <p class="lead">Ask &ldquo;can they still save themselves?&rdquo; &mdash; not &ldquo;have they started to fall?&rdquo; The target is the capture point; the green area is where this patient&rsquo;s own step can reach. Inside it: hands off. Outside: the smallest nudge. Out of reach: catch.</p>
+  <figure class="fig"><img src="assets/img/how_it_decides.png" alt="How CatchPoint decides between hands-off, nudge and catch using the capture point and the reachable step region" loading="lazy"><figcaption>Schematic, top view. The capture point is a standard balance concept (Pratt 2006; Hof 2005).</figcaption></figure>
+  <div class="states">
+    <div class="state g"><b>Hands off</b><span>The cables stay slack. The patient steps on their own.</span></div>
+    <div class="state a"><b>Graded nudge &le; 150 N</b><span>The smallest push-back that brings the capture point into reach.</span></div>
+    <div class="state r"><b>Catch</b><span>Passive slip brakes, &ge; 300 N along the fall, when no step can recover.</span></div>
+  </div>
+  <figure class="fig" style="margin-top:22px"><img src="assets/img/story_d3_strip.jpg" alt="Same push, three responses on design D3: slack, nudge, catch" loading="lazy"><figcaption>Same push, three responses (concept render of design D3, unbuilt and unvalidated).</figcaption></figure>
+</div></section>
+
+<section id="demos"><div class="wrap">
+  <div class="eyebrow">Demos</div>
+  <h2>Watch it work</h2>
+  <p class="lead">All clips are simulations. The physics demo uses a robot walking policy with a simulated weak leg &mdash; a demonstration of the control idea, not patient evidence.</p>
+  <div id="videos"><p class="cite">Loading videos&hellip;</p></div>
+</div></section>
+
+<section id="results" class="alt"><div class="wrap">
+  <div class="eyebrow">Results</div>
+  <h2>Same safety, far more recoveries on their own feet</h2>
+  <p class="lead">Monte Carlo study: each bar is one controller on the same 2000 simulated pushes (seed 5412).</p>
+  <div class="rgrid">
+    <div class="card">
+      <div class="legend">
+        <span><i style="background:var(--seg-alone)"></i>Recovered alone</span>
+        <span><i style="background:var(--seg-nudge)"></i>Recovered with a nudge</span>
+        <span><i style="background:var(--seg-catch)"></i>Harness catch</span>
+        <span><i style="background:var(--seg-fall)"></i>Fall</span>
+      </div>
+      <div class="chart" id="chart" role="img" aria-label="Stacked bars of outcome percentages per controller"></div>
+    </div>
+    <div>
+      <div class="callout">
+        <div style="font-weight:600;color:var(--accent);font-size:15px">Ended without the harness</div>
+        <div class="big" id="bigstat">54.6% vs 9.6%</div>
+        <p style="margin:8px 0 0;font-size:15px" id="bigtxt"></p>
+      </div>
+      <p class="caveat"><b>Capture-point threshold:</b> similar solo recoveries (31.8%) but harness in 63.7% vs 40.7%. 95% CIs up to &plusmn;3 pp. Simplified model, not clinical data. Selected operating points: threshold lock 0.05 m, capture-point 0.08 m, spring K = 200 N/m, CatchPoint margin 0.03.</p>
+    </div>
+  </div>
+
+  <h3 style="margin:48px 0 6px">Physics demo: fewer catch-locks, more low-force nudges</h3>
+  <p class="cite" style="font-size:15px;margin-bottom:14px">Impaired Unitree G1 policy (right-leg torque &times;0.5, 60 ms delay) and 56 deterministic weak-side lateral pushes (7 magnitudes &times; 8 push times).</p>
+  <div class="card tw"><table id="phys"></table></div>
+  <p class="caveat">This demonstrates a simulated control trade-off. CatchPoint&rsquo;s recoverability region and escalation were calibrated on the same push grid, so it is not a held-out performance test. Robot-policy demonstration only &mdash; not patient evidence or clinical validation.</p>
+</div></section>
+
+<section id="hardware"><div class="wrap">
+  <div class="eyebrow">Hardware concept</div>
+  <h2>One cable set, three modes</h2>
+  <p class="lead">Design D3: eight cables from a walker to a pelvic belt &mdash; slack, graded nudge, or passive slip-brake catch.</p>
+  <div class="hw">
+    <figure class="fig"><img src="assets/img/annotated_d3.jpg" alt="Annotated render of the CatchPoint D3 walker" loading="lazy"><figcaption>Annotated concept render of design D3.</figcaption></figure>
+    <div>
+      <div class="nums">
+        <div class="num"><b>805/814</b><span>already-caught trials arrested within 0.25 m (98.8%, Wilson 95% CI 97.9&ndash;99.5%)</span></div>
+        <div class="num"><b>&ge; 300 N</b><span>along the fall (305.5 N minimum), &le; 380 N horizontal resultant</span></div>
+        <div class="num"><b>420 N</b><span>static tip SF-1.5 envelope; tip SF &ge; 2.09, sliding SF &ge; 1.28</span></div>
+        <div class="num"><b>0.104 s</b><span>median time to stop the COM after catch engagement (p95 0.19 s)</span></div>
+      </div>
+      <span class="warn">UNBUILT &middot; UNVALIDATED &middot; STATICS + SIMULATION ONLY</span>
+      <p class="quote">Passive slip brakes (corner 150, lateral 155, centre 120 N) give &gt;= 300 N along the fall direction and &lt;= 380 N horizontal resultant; the perpendicular component is up to 178 N. The walker slides at 465 N (259 N if mu = 0.3). The catch engages in 814 of 2000 trials; falls 95/2000 (4.75%) become at worst 104/2000 (5.2%): a small increase, so never claim fall reduction. Source: <a href="https://github.com/chuanhan1013/catchpoint/blob/main/results/sizing_D3_summary.md">results/sizing_D3_summary.md</a>.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="simulator" class="alt"><div class="wrap">
+  <div class="eyebrow">Interactive simulator</div>
+  <h2>Push a simulated patient</h2>
+  <p class="lead">Runs entirely in your browser. Pick a push and a controller and watch hands-off, nudge and catch decisions.</p>
+  <div class="simframe"><iframe src="site/simulator.html" title="CatchPoint interactive simulator" loading="lazy"></iframe></div>
+  <p class="cite" style="margin-top:12px"><a href="site/simulator.html">Open the simulator full screen &rarr;</a></p>
+</div></section>
+
+<section id="plan"><div class="wrap">
+  <div class="eyebrow">Team plan</div>
+  <h2>Five roles, one question each</h2>
+  <p class="lead">How a team of five could split the project (22 Oct &ndash; 3 Nov 2026): clinical, mechanical, sensing, control, simulation.</p>
+  <div class="btns"><a class="btn solid" href="site/team_plan.html">Read the team plan</a></div>
+</div></section>
+
+<section id="documents" class="alt"><div class="wrap">
+  <div class="eyebrow">Documents &amp; downloads</div>
+  <h2>Go deeper</h2>
+  <div class="docs">
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/analysis/i2_sizing/report.md"><b>I2 sizing report</b><span>Statics, slip brakes and arrest coverage for design D3 (report.md)</span></a>
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/SPEC.md"><b>SPEC</b><span>Model, controllers, forces and delays</span></a>
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/docs/TEAM_PLAN.md"><b>Team plan (Markdown)</b><span>Roles, contracts and schedule</span></a>
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/docs/novelty_and_sources.md"><b>Novelty and sources</b><span>Prior work and citations behind the problem stats</span></a>
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/physics_demo/README.md"><b>Physics demo README</b><span>Protocol, calibration and limits</span></a>
+    <a class="doc" href="https://github.com/chuanhan1013/catchpoint"><b>Source code</b><span>sim/, analysis/, physics_demo/ on GitHub</span></a>
+  </div>
+  <div class="btns" style="margin-top:24px"><a class="btn solid" href="assets/deck/CatchPoint_pitch_public.pdf">&#11015; Download the pitch deck (PDF)</a></div>
+  <p class="cite" style="margin-top:10px">Public version: one third-party product photo (slide 3) is omitted.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="disc"><b>Disclaimers.</b> Simulation only &mdash; this is not clinical evidence. The physics demo is a robot-policy demonstration, not a patient model. The hardware is an unbuilt, unvalidated concept.</div>
+  <div class="grid g2">
+    <div><h4>Credits</h4><ul>
+      <li>Unitree G1: BSD-3-Clause, via MuJoCo Menagerie and unitree_rl_gym</li>
+      <li>Mannequin: Mixamo (Adobe) via three.js examples</li>
+      <li>HDRI and textures: Poly Haven (CC0)</li>
+      <li>Icons: Tabler Icons (MIT)</li>
+      <li>CC BY figures shown with credit: NTU MRBA (J NeuroEng Rehabil 2023), RobUST (Omofuma et al., Bioengineering 2023)</li>
+    </ul></div>
+    <div><h4>About</h4><p style="margin:0">CatchPoint is a course project for NUS ME5412 Robotics for Healthcare. All rights reserved unless stated; third-party credits in CREDITS (see <a href="https://github.com/chuanhan1013/catchpoint/blob/main/physics_demo/CREDITS.md">physics_demo/CREDITS.md</a>, <a href="https://github.com/chuanhan1013/catchpoint/blob/main/render/mujoco_humanoid/CREDITS.md">render/mujoco_humanoid/CREDITS.md</a>).</p></div>
+  </div>
+</div></footer>
+
+<script>
+const RESULTS=[
+ {label:"No robot",alone:46.4,nudge:0,caught:0,fall:53.6},
+ {label:"Today: threshold lock (θ = 0.05 m)",alone:9.55,nudge:0,caught:85.5,fall:4.95},
+ {label:"Capture-point threshold (θ = 0.08 m)",alone:31.8,nudge:0,caught:63.7,fall:4.5},
+ {label:"Always-on spring (K = 200)",alone:0,nudge:57.45,caught:38.65,fall:3.9},
+ {label:"CatchPoint (m = 0.03)",alone:34.15,nudge:20.4,caught:40.7,fall:4.75,cp:true}
+];
+const PHYS=[
+ {name:"No robot (B0)",fall:32,caught:0,nudged:0,alone:24},
+ {name:"Threshold lock (B1, θ = 0.08 m)",fall:0,caught:46,nudged:0,alone:10},
+ {name:"CatchPoint (default)",fall:0,caught:26,nudged:23,alone:7,cp:true}
+];
+const h1=v=>(Math.round(v*10)/10).toFixed(1);
+(function chart(){
+  const el=document.getElementById('chart');
+  const segs=[["alone","var(--seg-alone)",""],["nudge","var(--seg-nudge)","nudge"],["caught","var(--seg-catch)",""],["fall","var(--seg-fall)",""]];
+  el.innerHTML=RESULTS.map(r=>`<div class="crow${r.cp?' cp':''}"><div class="lab">${r.label}</div><div class="bar">${
+    segs.map(([k,c,cl])=>r[k]>0?`<div class="seg ${cl}" style="width:${r[k]}%;background:${c}" title="${k}: ${h1(r[k])}%">${r[k]>=5?Math.round(r[k])+'%':''}</div>`:'').join('')}</div></div>`).join('');
+  const cp=RESULTS[4],b1=RESULTS[1];
+  const cpOwn=cp.alone+cp.nudge,b1Own=b1.alone+b1.nudge;
+  document.getElementById('bigstat').textContent=h1(cpOwn)+'% vs '+h1(b1Own)+'%';
+  document.getElementById('bigtxt').textContent=h1(cp.alone)+'% alone + '+h1(cp.nudge)+'% nudged, versus '+h1(b1Own)+'% for threshold lock, at ~5% falls (CatchPoint '+h1(cp.fall)+'%, lock '+h1(b1.fall)+'%).';
+  const t=document.getElementById('phys');
+  t.innerHTML='<tr><th>Controller</th><th>Falls</th><th>Catch-locks</th><th>Nudges</th><th>Hands-off</th></tr>'+
+   PHYS.map(r=>`<tr${r.cp?' class="hl"':''}><td>${r.name}</td><td>${r.fall}/56</td><td>${r.caught||'&ndash;'}</td><td>${r.nudged||'&ndash;'}</td><td>${r.alone}</td></tr>`).join('');
+})();
+(async function videos(){
+  const host=document.getElementById('videos');
+  try{
+    const m=await (await fetch('site/videos.json',{cache:'no-cache'})).json();
+    host.innerHTML=m.sections.map(s=>`<div class="vsec"><h3>${s.title}</h3><p class="b">${s.blurb||''}</p><div class="vgrid">${
+      s.items.map(v=>{
+        const meta=`<div class="meta">${v.tag?`<span class="pill">${v.tag}</span>`:''}<h4>${v.title}</h4><p>${v.desc||''}</p></div>`;
+        const media=v.status==='ready'
+          ?`<video controls muted playsinline loop preload="metadata" poster="${v.poster||''}"><source src="${v.src}" type="video/mp4"></video>`
+          :`<div class="slot"><b>Coming soon</b><span>${v.src.split('/').pop()}</span></div>`;
+        return `<div class="vcard${v.wide?' wide':''}">${media}${meta}</div>`}).join('')}</div></div>`).join('');
+  }catch(e){host.innerHTML='<p class="cite">Videos could not be loaded (the manifest needs to be served over http).</p>'}
+})();
+(function theme(){
+  const b=document.getElementById('themeBtn'),r=document.documentElement;
+  b.addEventListener('click',()=>{
+    const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+    r.dataset.theme=dark?'light':'dark';
+  });
+})();
+</script>
+</body>
+</html>

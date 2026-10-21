@@ -1,0 +1,11 @@
+setting,metric,estimate,ci_lo,ci_hi
+B0 none,fall_pct,53.6000,49.6500,57.5000
+B0 none,self_pct,46.4000,42.5000,50.3500
+B1 theta=0.05,fall_pct,4.9500,3.4000,6.5012
+B1 theta=0.05,self_pct,9.5500,7.2988,11.8500
+B2 K=200,fall_pct,3.9000,2.9500,4.8012
+B2 K=200,self_pct,0.0000,0.0000,0.0000
+CP m=0.03,fall_pct,4.7500,3.4488,6.2000
+CP m=0.03,self_pct,34.1500,31.3488,37.0000
+CP m=0.15,fall_pct,3.9000,2.7000,5.2500
+CP m=0.15,self_pct,32.5000,29.8488,34.9500

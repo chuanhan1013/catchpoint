@@ -1,0 +1,26 @@
+{
+ "n": 56,
+ "controllers": [
+  {
+   "name": "No robot (B0)",
+   "fall": 32,
+   "caught": 0,
+   "nudged": 0,
+   "alone": 24
+  },
+  {
+   "name": "Threshold lock (B1, \u03b8 = 0.08 m)",
+   "fall": 0,
+   "caught": 46,
+   "nudged": 0,
+   "alone": 10
+  },
+  {
+   "name": "CatchPoint (CP, default)",
+   "fall": 0,
+   "caught": 26,
+   "nudged": 23,
+   "alone": 7
+  }
+ ]
+}

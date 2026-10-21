@@ -1,0 +1,59 @@
+{
+ "source": "analysis/i2_sizing/gate_check.py from data/d3_contract.json (front_gate) and data/results.json",
+ "loads": {
+  "T_slip_centre": 120.0,
+  "T_qp_frontC_arrest": 149.6,
+  "T_qp_frontC_nudge": 75.9,
+  "T_qp_frontC_worst": 149.6,
+  "design_cable_force": 149.6,
+  "latch_rating": 224.39999999999998
+ },
+ "cable_direction_belt_to_anchor": [
+  1.0,
+  0.0,
+  0.0
+ ],
+ "span_m": 0.66,
+ "section": {
+  "A_mm2": 224.0,
+  "I_strong_mm4": 44458.666666666664,
+  "S_strong_mm3": 2222.9333333333334,
+  "I_weak_mm4": 14378.666666666666,
+  "S_weak_mm3": 1437.8666666666666,
+  "hole_dI_mm4": 14440.0,
+  "I_strong_net_mm4": 30018.666666666664,
+  "S_strong_net_mm3": 1500.9333333333332,
+  "mass_per_m_kg": 0.6048,
+  "arm_mass_kg": 0.399168
+ },
+ "material": {
+  "sigma_y_MPa": 240.0,
+  "sigma_allow_MPa": 120.0,
+  "E_MPa": 68900.0
+ },
+ "latched": {
+  "hinge_reaction_horizontal_N": 74.8,
+  "latch_reaction_horizontal_N": 74.8,
+  "vertical_reaction_each_N": 9.31541904,
+  "hinge_reaction_resultant_N": 75.37782851668516,
+  "latch_reaction_resultant_N": 75.37782851668516,
+  "M_hinge_Nm": 0.0,
+  "M_mid_horizontal_Nm": 24.684,
+  "M_mid_vertical_Nm": 2.7510316416,
+  "sigma_gross_MPa": 13.017519759769218,
+  "sigma_net_MPa": 18.35904019695678,
+  "sigma_peak_MPa": 51.25057435348161,
+  "SF_yield": 4.682874348776855,
+  "SF_allow": 2.3414371743884277,
+  "deflection_mm": 0.2925138991807092
+ },
+ "unlatched_cantilever_info": {
+  "hinge_reaction_horizontal_N": 149.6,
+  "M_hinge_Nm": 49.368,
+  "M_mid_Nm": 0.0,
+  "sigma_hinge_MPa": 22.20849328214971,
+  "SF_yield": 10.80667638956409,
+  "note": "out of scope: the interlock disarms the system if the latch is open, and the latch is rated >= 1.5 x the design cable force"
+ },
+ "pass": true
+}

@@ -1,0 +1,46 @@
+{
+ "n": 2000,
+ "seed": 5412,
+ "rows": [
+  {
+   "label": "No robot",
+   "key": "B0 none",
+   "alone": 46.4,
+   "nudge": 0.0,
+   "caught": 0.0,
+   "fall": 53.6
+  },
+  {
+   "label": "Today: threshold lock (\u03b8 = 0.05 m)",
+   "key": "B1 theta=0.05",
+   "alone": 9.55,
+   "nudge": 0.0,
+   "caught": 85.5,
+   "fall": 4.95
+  },
+  {
+   "label": "Capture-point threshold (\u03b8 = 0.08 m)",
+   "key": "B1-XCoM theta=0.08",
+   "alone": 31.8,
+   "nudge": 0.0,
+   "caught": 63.7,
+   "fall": 4.5
+  },
+  {
+   "label": "Always-on spring (K = 200)",
+   "key": "B2 K=200",
+   "alone": 0.0,
+   "nudge": 57.45,
+   "caught": 38.65,
+   "fall": 3.9
+  },
+  {
+   "label": "CatchPoint (m = 0.03)",
+   "key": "CP m=0.03",
+   "alone": 34.15,
+   "nudge": 20.4,
+   "caught": 40.7,
+   "fall": 4.75
+  }
+ ]
+}

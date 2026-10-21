@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatchPoint Simulator</title>
+<meta name="description" content="Interactive CatchPoint simulator: push a simulated patient and watch hands-off, nudge and catch.">
+</head>
+<body>
+
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --surface-2: #e9edf0;
+  --surface-3: #dce3e8;
+  --fg: #17242b;
+  --muted: #53656e;
+  --faint: #7c8b92;
+  --border: #b7c3c9;
+  --border-strong: #7e929d;
+  --shadow: #c8d1d6;
+  --grid: #d8e0e4;
+  --l0: #3A9D5D;
+  --l1: #E0A030;
+  --l2: #C8443A;
+  --fall: #8d3030;
+  --patient: #1F6F78;
+  --patient-soft: #b6d2d2;
+  --reach-fill: #dbeedd;
+  --reach-line: #3A9D5D;
+  --baseline: #9AA0A6;
+  --violet: #7B5EA7;
+  --blue: #3C78B4;
+  --white: #ffffff;
+  --black: #17242b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #12181b;
+    --surface: #1b2428;
+    --surface-2: #253136;
+    --surface-3: #314047;
+    --fg: #e3ecef;
+    --muted: #afc0c7;
+    --faint: #81939b;
+    --border: #43545c;
+    --border-strong: #70858e;
+    --shadow: #0c1012;
+    --grid: #334249;
+    --l0: #68c883;
+    --l1: #efbd52;
+    --l2: #ed7168;
+    --fall: #f08a82;
+    --patient: #62b2b4;
+    --patient-soft: #315b60;
+    --reach-fill: #254936;
+    --reach-line: #68c883;
+    --baseline: #aab0b5;
+    --violet: #b49ad8;
+    --blue: #79ace0;
+    --white: #ffffff;
+    --black: #101517;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #12181b;
+  --surface: #1b2428;
+  --surface-2: #253136;
+  --surface-3: #314047;
+  --fg: #e3ecef;
+  --muted: #afc0c7;
+  --faint: #81939b;
+  --border: #43545c;
+  --border-strong: #70858e;
+  --shadow: #0c1012;
+  --grid: #334249;
+  --l0: #68c883;
+  --l1: #efbd52;
+  --l2: #ed7168;
+  --fall: #f08a82;
+  --patient: #62b2b4;
+  --patient-soft: #315b60;
+  --reach-fill: #254936;
+  --reach-line: #68c883;
+  --baseline: #aab0b5;
+  --violet: #b49ad8;
+  --blue: #79ace0;
+  --white: #ffffff;
+  --black: #101517;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "IBM Plex Sans", "Source Sans 3", sans-serif;
+  line-height: 1.45;
+  overflow-x: hidden;
+}
+button, input, select { font: inherit; }
+button, select, input[type="range"] { accent-color: var(--patient); }
+button, select { color: var(--fg); background: var(--surface); border: 1px solid var(--border-strong); }
+button { cursor: pointer; font-weight: 600; }
+button:hover { background: var(--surface-2); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--l1); outline-offset: 2px; }
+
+.page { width: 100%; max-width: 1240px; min-width: 0; margin: 0 auto; padding: 22px 16px 42px; }
+.eyebrow, .mono, .readout-value, .value, code, pre, .axis-label { font-family: "IBM Plex Mono", "JetBrains Mono", monospace; }
+.eyebrow { margin: 0 0 7px; color: var(--patient); font-size: .73rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 600; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.65rem); line-height: 1; letter-spacing: -.04em; }
+h2 { margin-bottom: 10px; font-size: clamp(1.28rem, 2.2vw, 1.8rem); letter-spacing: -.02em; }
+h3 { font-size: .95rem; margin-bottom: 5px; }
+.lede { max-width: 940px; margin-bottom: 18px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.18rem); }
+.simulator { width: 100%; min-width: 0; border: 1px solid var(--border); background: var(--surface); box-shadow: 0 4px 0 var(--shadow); }
+.sim-header { display: flex; justify-content: space-between; gap: 16px; align-items: start; padding: 14px 16px 12px; border-bottom: 1px solid var(--border); }
+.sim-header h2 { margin: 0; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .06em; }
+.sim-header p { margin: 3px 0 0; color: var(--muted); font-size: .84rem; }
+.sim-status { display: flex; gap: 7px; align-items: center; white-space: nowrap; font-family: "IBM Plex Mono", monospace; font-size: .75rem; color: var(--muted); }
+.live-dot { width: 8px; height: 8px; display: inline-block; background: var(--patient); border-radius: 50%; }
+.sim-body { min-width: 0; padding: 14px 16px 16px; }
+.controls { display: grid; min-width: 0; grid-template-columns: repeat(6, minmax(100px, 1fr)); gap: 10px 12px; margin-bottom: 14px; }
+.preset-strip { display: grid; min-width: 0; grid-template-columns: minmax(190px, .85fr) repeat(3, minmax(145px, 1fr)); gap: 8px; align-items: stretch; margin-bottom: 14px; padding: 10px; border: 1px solid var(--border); background: var(--surface-2); }
+.preset-intro { align-self: center; }.preset-intro strong { display: block; font-size: .86rem; }.preset-intro span { color: var(--muted); font-size: .75rem; }
+.preset { min-height: 54px; padding: 7px 10px; text-align: left; border: 1px solid var(--border-strong); background: var(--surface); }
+.preset strong, .preset small { display: block; }.preset small { margin-top: 2px; color: var(--muted); font-size: .72rem; font-weight: 400; }
+.preset:hover, .preset.active { border-color: var(--patient); box-shadow: inset 0 -3px 0 var(--patient); }
+.control { min-width: 0; }
+.control label, .control .label { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.control select, .control input[type="number"] { width: 100%; min-height: 34px; padding: 5px 8px; border-radius: 2px; }
+.control input[type="range"] { display: block; width: 100%; margin: 11px 0 7px; }
+.value { color: var(--fg); font-size: .75rem; white-space: nowrap; }
+.optional-control { opacity: .55; }
+.optional-control.enabled { opacity: 1; }
+.button-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; grid-column: span 2; }
+.action-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: -3px 0 12px; }.action-strip button { min-height: 34px; padding: 5px 12px; border-radius: 2px; }.action-strip span { color: var(--muted); font-size: .72rem; }
+.button-row button { min-height: 34px; padding: 5px 12px; border-radius: 2px; }
+.button-row .primary { background: var(--patient); color: var(--white); border-color: var(--patient); }
+.button-row .primary:hover { background: var(--fg); color: var(--surface); }
+.slow-wrap { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 4px 2px; color: var(--muted); font-size: .75rem; }
+.slow-wrap input { margin: 0; }
+.visual-grid { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) 230px; gap: 12px; }
+.view-panel { min-width: 0; overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); }
+.panel-label { display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px; border-bottom: 1px solid var(--border); color: var(--muted); font: 600 .68rem "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
+canvas { display: block; width: 100%; }
+#top-canvas { aspect-ratio: 1.4 / 1; min-height: 265px; }
+#side-canvas { aspect-ratio: .78 / 1; min-height: 265px; }
+.mini-legend { display: flex; flex-wrap: wrap; gap: 8px 13px; padding: 7px 9px 8px; border-top: 1px solid var(--border); color: var(--muted); font-size: .68rem; }
+.mini-legend span { display: inline-flex; align-items: center; gap: 5px; }.mini-legend i { width: 12px; height: 7px; display: inline-block; border: 1px solid currentColor; }.mini-legend .com { width: 8px; height: 8px; border-radius: 50%; background: var(--patient); border: 0; }.mini-legend .reach { border-radius: 50%; background: var(--reach-fill); border-color: var(--reach-line); }.mini-legend .force { width: 15px; height: 3px; background: var(--l1); border: 0; }
+.readouts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+.readout { border-top: 2px solid var(--border-strong); padding: 6px 7px 5px; min-width: 0; }
+.readout small { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; }
+.readout-value { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; font-weight: 600; }
+.badge, .outcome { display: inline-block; padding: 2px 6px; border: 1px solid currentColor; border-radius: 2px; font: 600 .72rem "IBM Plex Mono", monospace; }
+.badge.l0 { color: var(--l0); }.badge.l1 { color: var(--l1); }.badge.l2 { color: var(--l2); }
+.outcome { color: var(--patient); }
+.outcome.fall, .outcome.caught { color: var(--l2); }.outcome.assisted { color: var(--l1); }.outcome.self { color: var(--l0); }
+.chart-panel { margin-top: 12px; border: 1px solid var(--border); background: var(--surface-2); }
+#chart-canvas { height: 188px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 7px 9px 8px; border-top: 1px solid var(--border); color: var(--muted); font-size: .7rem; }
+.legend span { display: inline-flex; gap: 5px; align-items: center; }
+.swatch { width: 18px; height: 3px; display: inline-block; background: var(--patient); }.swatch.force { background: var(--l1); }.swatch.outside { background: var(--l2); }
+.note { margin: 10px 0 0; color: var(--muted); font-size: .73rem; }
+.compare-panel { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }.compare-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }.compare-head strong { font-size: .86rem; }.compare-head span { color: var(--muted); font-size: .72rem; }
+.compare-grid { display: grid; grid-template-columns: repeat(5, minmax(118px, 1fr)); gap: 7px; }.compare-cell { min-width: 0; padding: 8px; border: 1px solid var(--border); background: var(--surface-2); }.compare-cell strong { display: block; min-height: 32px; font-size: .73rem; line-height: 1.25; }.compare-cell small { display: block; margin-top: 6px; color: var(--muted); font: .68rem "IBM Plex Mono", monospace; }.compare-cell .outcome { margin-top: 7px; }
+.stacked-bar { display: flex; width: 100%; height: 18px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-strong); background: var(--surface-3); }.stacked-bar span { display: block; min-width: 0; }.stacked-bar .self { background: var(--l0); }.stacked-bar .assisted { background: var(--l1); }.stacked-bar .caught { background: var(--l2); }.stacked-bar .fall { background: var(--fall); }.mc-key { display: flex; flex-wrap: wrap; gap: 5px 12px; margin-top: 6px; }.mc-key span { white-space: nowrap; }.mc-key b { color: var(--fg); font-family: "IBM Plex Mono", monospace; }
+.content-section { padding-top: 42px; }
+.hero-figure { margin: 22px 0 0; border: 1px solid var(--border); background: var(--surface); }
+.hero-figure img { display: block; width: 100%; max-width: 1400px; height: auto; }
+.hero-figure figcaption { padding: 7px 10px 8px; color: var(--muted); font: .72rem "IBM Plex Mono", monospace; }
+.section-rule { border-top: 1px solid var(--border); padding-top: 14px; }
+.problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.problem { border-left: 3px solid var(--l2); padding: 4px 10px 4px 12px; }
+.problem strong { display: block; margin-bottom: 3px; color: var(--l2); font: 600 1.15rem "IBM Plex Mono", monospace; }
+.problem p { margin: 0; color: var(--muted); font-size: .9rem; }
+.mermaid-wrap { border: 1px solid var(--border); background: var(--surface-2); padding: 10px; overflow-x: auto; }
+pre.mermaid { margin: 0; color: var(--fg); font: .84rem/1.35 "IBM Plex Mono", monospace; }
+.card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.plug-card { border: 1px solid var(--border); border-top: 3px solid var(--patient); padding: 11px 12px; background: var(--surface); }
+.plug-card h3 { margin-top: 0; color: var(--patient); }
+.plug-card p { margin: 0; color: var(--muted); font-size: .84rem; }
+.team-list { border-top: 1px solid var(--border); }
+.team-row { display: grid; grid-template-columns: 58px 190px 1fr; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.team-row .role { color: var(--patient); font: 600 .75rem "IBM Plex Mono", monospace; }
+.team-row strong { font-size: .9rem; }.team-row span:last-child { color: var(--muted); font-size: .84rem; }
+.disclaimer { margin-top: 32px; padding: 11px 12px; border: 1px solid var(--border-strong); color: var(--muted); font-size: .78rem; }
+.hidden { display: none !important; }
+@media (max-width: 850px) {
+  .preset-strip { grid-template-columns: 1fr repeat(3, 1fr); }.preset-intro { grid-column: 1 / -1; }
+  .controls { grid-template-columns: repeat(3, minmax(100px, 1fr)); }
+  .button-row { grid-column: span 3; }
+  .visual-grid { grid-template-columns: minmax(0, 1fr) 190px; }
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 580px) {
+  .page { padding-inline: 12px; }
+  .sim-body { padding-inline: 12px; }
+  .sim-header { display: block; }.sim-status { margin-top: 8px; }
+  .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }.control, .control select, .control input { min-width: 0; }.control label { font-size: .68rem; }.control .value { font-size: .66rem; }
+  .preset-strip { grid-template-columns: 1fr; }.preset-intro { grid-column: auto; }
+  .button-row { grid-column: 1 / -1; min-width: 0; }.button-row button, .slow-wrap { max-width: 100%; }
+  .visual-grid { grid-template-columns: 1fr; }
+  #side-canvas { aspect-ratio: 2.2 / 1; min-height: 145px; }
+  .readouts { grid-template-columns: repeat(3, 1fr); }
+  .readout:nth-child(4), .readout:nth-child(5) { grid-column: span 1; }
+  .problem-grid, .card-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.compare-cell:last-child { grid-column: span 2; }
+  .team-row { grid-template-columns: 42px 1fr; gap: 5px 10px; }.team-row span:last-child { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+</style>
+
+<main class="page">
+  <header>
+    <p class="eyebrow">ME5412 / robotic gait training / interactive concept model</p>
+    <h1>CatchPoint</h1>
+    <p class="lede">CatchPoint is a predictive, delay-compensated safety layer that lets a patient attempt a recovery step and applies only the graded pelvic force needed to keep that step recoverable.</p>
+  </header>
+
+  <section class="simulator" aria-labelledby="sim-title">
+    <div class="sim-header">
+      <div><h2 id="sim-title">Live recovery simulator</h2><p>500 Hz model · 3 second trial · the patient, robot and safety arbiter run together</p></div>
+      <div class="sim-status"><span class="live-dot" aria-hidden="true"></span><span id="sim-state">READY</span></div>
+    </div>
+    <div class="sim-body">
+      <div class="preset-strip" aria-label="Example presets">
+        <div class="preset-intro"><strong>Try the same patient three ways</strong><span>Severity 0.60 · paretic left · push toward the weak side</span></div>
+        <button class="preset" type="button" data-preset="small"><strong>Small push</strong><small>patient recovers alone</small></button>
+        <button class="preset active" type="button" data-preset="bigger"><strong>Bigger push</strong><small>robot nudges</small></button>
+        <button class="preset" type="button" data-preset="too-big"><strong>Too big</strong><small>harness catches</small></button>
+      </div>
+      <div class="controls" aria-label="Simulator controls">
+        <div class="control"><label for="controller">Controller</label><select id="controller"><option value="CP">CatchPoint</option><option value="B0">No robot</option><option value="B1">Today: threshold lock</option><option value="B1-XCoM">Capture-point threshold</option><option value="B2">Always-on spring</option></select></div>
+        <div class="control"><label for="severity">Patient severity <span class="value" id="severity-value"></span></label><input id="severity" type="range" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="control"><label for="paretic-side">Paretic side</label><select id="paretic-side"><option value="L">Left</option><option value="R">Right</option></select></div>
+        <div class="control"><label for="push-magnitude">Push magnitude <span class="value" id="push-magnitude-value"></span></label><input id="push-magnitude" type="range" min="0.2" max="0.9" step="0.01" value="0.6"></div>
+        <div class="control"><label for="push-direction">Push direction <span class="value" id="push-direction-value"></span></label><input id="push-direction" type="range" min="0" max="360" step="1" value="90"></div>
+        <div class="control optional-control" id="threshold-control"><label for="threshold">B1 threshold τ <span class="value" id="threshold-value"></span></label><input id="threshold" type="range" min="0.03" max="0.18" step="0.01" value="0.08"></div>
+        <div class="control optional-control" id="impedance-control"><label for="impedance-k">B2 stiffness K <span class="value" id="impedance-k-value"></span></label><input id="impedance-k" type="range" min="100" max="3200" step="100" value="800"></div>
+        <div class="control optional-control" id="margin-control"><label for="cp-margin">CP margin m <span class="value" id="cp-margin-value"></span></label><input id="cp-margin" type="range" min="-0.06" max="0.15" step="0.01" value="0.03"></div>
+        <div class="button-row"><button class="primary" id="push" type="button">Push</button><button id="monte-carlo" type="button">Run 200 random pushes</button><label class="slow-wrap"><input id="slow-motion" type="checkbox"> 0.25× slow motion</label></div>
+      </div>
+
+      <div class="action-strip"><button id="compare-all" type="button">Compare all on this push</button><span>same patient and push · five controller decisions</span></div>
+      <div class="visual-grid">
+        <div class="view-panel"><div class="panel-label"><span>Top view / horizontal plane</span><span>forward ↑ · patient left ←</span></div><canvas id="top-canvas" aria-label="Top view of feet, capture point and robot force"></canvas></div>
+        <div class="view-panel"><div class="panel-label"><span>Frontal strip</span><span>walker / brace</span></div><canvas id="side-canvas" aria-label="Frontal stick figure inside the robotic walker"></canvas></div>
+      </div>
+
+      <div class="mini-legend"><span><i class="com"></i> COM</span><span><i class="reach"></i> patient reach zone</span><span><i class="force"></i> robot force</span><span>ring = must step here</span></div>
+      <div class="readouts" aria-live="polite">
+        <div class="readout"><small>Current level</small><span class="readout-value"><span id="level-badge" class="badge l0">Hands off</span></span></div>
+        <div class="readout"><small>Robot force</small><span class="readout-value" id="force-readout">0 N</span></div>
+        <div class="readout"><small>Time</small><span class="readout-value" id="time-readout">0.00 s</span></div>
+        <div class="readout"><small>Steps taken</small><span class="readout-value" id="steps-readout">0</span></div>
+        <div class="readout"><small>Outcome</small><span class="readout-value"><span id="outcome-chip" class="outcome">—</span></span></div>
+      </div>
+
+      <div class="chart-panel"><div class="panel-label"><span>Last trial traces</span><span>|F| and capture-point excursion</span></div><canvas id="chart-canvas" aria-label="Time series chart for robot force and capture point distance outside support"></canvas><div class="legend"><span><i class="swatch force"></i>|F| (N)</span><span><i class="swatch outside"></i>ξ outside support (m)</span><span><i class="swatch"></i>time (s)</span></div></div>
+      <p class="note">Model note: the reachable discs show the identified step envelope; a faint disc is retained for comparison when another controller is selected.</p>
+      <div id="mc-result" class="note" aria-live="polite"></div>
+      <section class="compare-panel" aria-labelledby="compare-title"><div class="compare-head"><strong id="compare-title">Same patient, same push</strong><span>one compact run per controller</span></div><div id="compare-results" class="compare-grid" aria-live="polite"></div></section>
+    </div>
+  </section>
+
+  <figure class="hero-figure"><img alt="Concept render of the CatchPoint robotic walker safety system" src="data:image/jpeg;base64,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"><figcaption>Concept render (Blender)</figcaption></figure>
+
+  <section class="content-section" aria-labelledby="problem-title">
+    <div class="section-rule"><h2 id="problem-title">The problem</h2></div>
+    <div class="problem-grid">
+      <article class="problem"><strong>0.28 s</strong><p>Reported mechanical response for the MRBA: a reactive system has little time after instability is obvious.</p></article>
+      <article class="problem"><strong>0.8 s</strong><p>Reported IMU-walker actuation delay: a high threshold can arrive after the useful recovery step.</p></article>
+      <article class="problem"><strong>n = 99</strong><p>A fixed-dose stroke perturbation study found no benefit over BWS alone, motivating adaptive challenge.</p></article>
+    </div>
+  </section>
+
+  <section class="content-section" aria-labelledby="decision-title">
+    <div class="section-rule"><h2 id="decision-title">How CatchPoint decides</h2></div>
+    <div class="mermaid-wrap"><pre class="mermaid">flowchart LR
+  A[Estimate COM + capture point ξ] --> B{ξ inside
+  patient's recoverable region?}
+  B -- yes --> L0[L0 · TRANSPARENT
+  F = 0, patient steps]
+  B -- no --> C{Minimum force ≤ 150 N?}
+  C -- yes --> L1[L1 · ASSIST
+  graded pelvic force]
+  C -- no --> L2[L2 · CATCH
+  delayed harness lock]
+  L0 --> A
+  L1 --> A
+  L2 --> E[Safe stop]</pre></div>
+  </section>
+
+  <section class="content-section" aria-labelledby="plugs-title">
+    <div class="section-rule"><h2 id="plugs-title">What it plugs into</h2></div>
+    <div class="card-grid">
+      <article class="plug-card"><h3>Sit-to-stand</h3><p>Barrier on COM-over-feet during the rise and transfer.</p></article>
+      <article class="plug-card"><h3>Upper-limb rehab</h3><p>Barrier on trunk compensation while the arm reaches.</p></article>
+      <article class="plug-card"><h3>Dressing / feeding</h3><p>Barrier on contact force with a moving limb or head.</p></article>
+      <article class="plug-card"><h3>Exoskeletons</h3><p>XCoM-based hip assistance instead of a walker pelvic interface.</p></article>
+    </div>
+  </section>
+
+  <section class="content-section" aria-labelledby="team-title">
+    <div class="section-rule"><h2 id="team-title">Team modules</h2></div>
+    <div class="team-list">
+      <div class="team-row"><span class="role">R1</span><strong>Clinical &amp; user needs</strong><span>Problem statistics, existing solutions, protocol, outcomes, ethics and regulation.</span></div>
+      <div class="team-row"><span class="role">R2</span><strong>Mechanical &amp; CAD</strong><span>Walker retrofit, 2-DOF pelvic SEA, BWS winch, brake and actuator sizing.</span></div>
+      <div class="team-row"><span class="role">R3</span><strong>Sensing &amp; estimation</strong><span>Sensor suite, COM / ξ estimation, foot tracking, delay compensation and calibration.</span></div>
+      <div class="team-row"><span class="role">R4</span><strong>Control &amp; safety</strong><span>Recoverability barrier, minimum-norm force, graded arbiter and AAN argument.</span></div>
+      <div class="team-row"><span class="role">R5</span><strong>Simulation &amp; integration</strong><span>Monte Carlo, metrics, figures, demo video, interactive demo and slide integration.</span></div>
+    </div>
+  </section>
+
+  <p class="disclaimer">Simplified linear-inverted-pendulum model for concept illustration; not clinical data.</p>
+</main>
+
+<script id="physics">
+(() => {
+  'use strict';
+
+  const DT = 0.002, TRIAL_LENGTH = 3, G = 9.81, F_MAX = 150;
+  const TAU_S = 0.03, TAU_A = 0.07, LAG = 0.02, LOCK_DELAY = 0.28;
+  const HS = [0.11, 0.045], EPS = 0.01, KC_ANKLE = 0.5, D_FALL = 0.25;
+  const SIDE = [1, -1], XOVER = 0.08, XOVER_C = 0.09, CROSS_T = 1.25, CROSS_L = 0.70;
+  const MAX_STEPS = 3;
+  const topCanvas = document.getElementById('top-canvas');
+  const sideCanvas = document.getElementById('side-canvas');
+  const chartCanvas = document.getElementById('chart-canvas');
+  const els = {
+    controller: document.getElementById('controller'), severity: document.getElementById('severity'), severityValue: document.getElementById('severity-value'),
+    paretic: document.getElementById('paretic-side'), magnitude: document.getElementById('push-magnitude'), magnitudeValue: document.getElementById('push-magnitude-value'),
+    direction: document.getElementById('push-direction'), directionValue: document.getElementById('push-direction-value'), threshold: document.getElementById('threshold'), thresholdValue: document.getElementById('threshold-value'),
+    impedance: document.getElementById('impedance-k'), impedanceValue: document.getElementById('impedance-k-value'), margin: document.getElementById('cp-margin'), marginValue: document.getElementById('cp-margin-value'),
+    push: document.getElementById('push'), monteCarlo: document.getElementById('monte-carlo'), slow: document.getElementById('slow-motion'),
+    state: document.getElementById('sim-state'), level: document.getElementById('level-badge'), force: document.getElementById('force-readout'), time: document.getElementById('time-readout'), steps: document.getElementById('steps-readout'), outcome: document.getElementById('outcome-chip'), mc: document.getElementById('mc-result'), compare: document.getElementById('compare-results'), compareButton: document.getElementById('compare-all')
+  };
+  let current = null, lastTrial = null, animation = null, lastFrame = 0;
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const mul = (a, k) => [a[0] * k, a[1] * k];
+  const norm = a => Math.hypot(a[0], a[1]);
+  const unit = a => { const n = norm(a); return n > 1e-9 ? mul(a, 1 / n) : [1, 0]; };
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
+  const lerp = (a, b, u) => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  const zero = () => [0, 0];
+
+  function patientFrom(severity, paretic, explicit = {}) {
+    const s = Number(explicit.severity ?? severity), par = explicit.paretic || paretic;
+    const p = par === 'L' ? 0 : 1, mass = Number(explicit.mass ?? 72), z0 = Number(explicit.z0 ?? 0.92);
+    const lmax = explicit.Lmax ? [...explicit.Lmax] : [0.60 - 0.10 * s, 0.60 - 0.10 * s];
+    const ts = explicit.Ts ? [...explicit.Ts] : [0.35 + 0.10 * s, 0.35 + 0.10 * s];
+    if (!explicit.Lmax) lmax[p] = 0.50 - 0.30 * s;
+    if (!explicit.Ts) ts[p] = 0.40 + 0.25 * s;
+    return { severity: s, paretic: par, mass, z0, omega: Math.sqrt(G / z0), lambda: Math.sqrt(G / z0),
+      reaction: Number(explicit.tau_r ?? (0.20 + 0.30 * s)), lmax: { L: lmax[0], R: lmax[1] },
+      swing: { L: ts[0], R: ts[1] }, Lmax: lmax, Ts: ts,
+      ankle: Number(explicit.scale?.[p] ?? (1 - 0.7 * s)), scale: explicit.scale ? [...explicit.scale] : [1, 1].map((v, j) => j === p ? 1 - 0.7 * s : v) };
+  }
+
+  function rectFor(foot, ankle = 1) { return { xmin: foot[0] - HS[0], xmax: foot[0] + HS[0], ymin: foot[1] - HS[1] * ankle, ymax: foot[1] + HS[1] * ankle }; }
+  function unionRect(a, b) { return { xmin: Math.min(a.xmin, b.xmin), xmax: Math.max(a.xmax, b.xmax), ymin: Math.min(a.ymin, b.ymin), ymax: Math.max(a.ymax, b.ymax) }; }
+  function pointInRect(p, r, margin = 0) { return p[0] >= r.xmin - margin && p[0] <= r.xmax + margin && p[1] >= r.ymin - margin && p[1] <= r.ymax + margin; }
+  function projectRect(p, r) { return [clamp(p[0], r.xmin, r.xmax), clamp(p[1], r.ymin, r.ymax)]; }
+  function rectDistance(p, r) { return Math.hypot(Math.max(r.xmin - p[0], 0, p[0] - r.xmax), Math.max(r.ymin - p[1], 0, p[1] - r.ymax)); }
+  function supportFor(state) { return state.swingLeg >= 0 ? rectFor(state.fc[1 - state.swingLeg]) : unionRect(rectFor(state.fc[0]), rectFor(state.fc[1])); }
+  function copFor(state) { if (state.swingLeg >= 0) return rectFor(state.fc[1 - state.swingLeg]); return unionRect(rectFor(state.fc[0], state.patient.scale[0]), rectFor(state.fc[1], state.patient.scale[1])); }
+  function centreRect(r) { return [(r.xmin + r.xmax) / 2, (r.ymin + r.ymax) / 2]; }
+  function capturePoint(x, v, lambda) { return add(x, mul(v, 1 / lambda)); }
+  function outsideDistance(p, r) { return pointInRect(p, r) ? 0 : rectDistance(p, r); }
+
+  // Faithful scalar port of model.make_hull/project.  The hull is the convex
+  // hull of two rectangles, including the four diagonal corner half-planes.
+  function makeHull(c1, h1, c2, h2) {
+    const lo = [Math.min(c1[0] - h1[0], c2[0] - h2[0]), Math.min(c1[1] - h1[1], c2[1] - h2[1])];
+    const hi = [Math.max(c1[0] + h1[0], c2[0] + h2[0]), Math.max(c1[1] + h1[1], c2[1] + h2[1])];
+    const signs = [[1, 1], [-1, 1], [1, -1], [-1, -1]], A = signs.map(s => [c1[0] + s[0] * h1[0], c1[1] + s[1] * h1[1]]), B = signs.map(s => [c2[0] + s[0] * h2[0], c2[1] + s[1] * h2[1]]);
+    const n = [], b = [], nn = [];
+    for (let k = 0; k < 4; k++) { const d = [Math.abs(A[k][0] - B[k][0]), Math.abs(A[k][1] - B[k][1])]; const q = [signs[k][0] * d[1], signs[k][1] * d[0]]; n.push(q); b.push(Math.max(dot(q, A[k]), dot(q, B[k]))); nn.push(dot(q, q)); }
+    return { lo, hi, n, b, nn };
+  }
+  function hullLines(h) {
+    const ns = [[1, 0], [-1, 0], [0, 1], [0, -1]], bs = [h.hi[0], -h.lo[0], h.hi[1], -h.lo[1]];
+    for (let k = 0; k < 4; k++) { const q = Math.sqrt(h.nn[k]); if (q > 1e-12) { ns.push(mul(h.n[k], 1 / q)); bs.push(h.b[k] / q); } else { ns.push([0, 0]); bs.push(0); } }
+    return { ns, bs };
+  }
+  function project(p, h) {
+    let z = [clamp(p[0], h.lo[0], h.hi[0]), clamp(p[1], h.lo[1], h.hi[1])];
+    if (h.n.some((q, k) => dot(q, z) - h.b[k] > 1e-12)) {
+      const { ns, bs } = hullLines(h), candidates = [];
+      for (let k = 0; k < ns.length; k++) candidates.push(sub(p, mul(ns[k], dot(ns[k], p) - bs[k])));
+      for (let i = 4; i < 8; i++) for (let j = 0; j < 4; j++) { const a = ns[i], c = ns[j], det = a[0] * c[1] - a[1] * c[0]; if (Math.abs(det) > 1e-12) candidates.push([(bs[i] * c[1] - bs[j] * a[1]) / det, (a[0] * bs[j] - c[0] * bs[i]) / det]); }
+      candidates.push([h.hi[0], h.hi[1]], [h.lo[0], h.hi[1]], [h.hi[0], h.lo[1]], [h.lo[0], h.lo[1]]);
+      let best = z, bestD = Infinity;
+      for (const q of candidates) { let feasible = true; for (let k = 0; k < ns.length; k++) if (dot(ns[k], q) - bs[k] > 1e-9) { feasible = false; break; } const d = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2; if (feasible && d < bestD) { best = q; bestD = d; } }
+      z = best;
+    }
+    return z;
+  }
+  function distTo(p, h) { const q = sub(p, project(p, h)); return norm(q); }
+  function half(scale) { return [HS[0] * scale, HS[1] * scale]; }
+  function stateHulls(state) {
+    const single = state.swLeg >= 0, st = single ? 1 - state.swLeg : 0, lA = single ? st : 0, lB = single ? st : 1;
+    const cA = state.fc[lA], cB = state.fc[lB], hA = half(state.patient.scale[lA]), hB = half(state.patient.scale[lB]);
+    return { single, lA, lB, cA, cB, hA, hB, cop: makeHull(cA, hA, cB, hB), geo: makeHull(cA, HS, cB, HS) };
+  }
+  function lipStep(x, v, p, F, m, om, dt) {
+    const q = sub(p, mul(F, 1 / (m * om * om))), xi = add(x, mul(v, 1 / om)), e = Math.exp(om * dt), ei = Math.exp(-om * dt);
+    const xn = add(add(mul(x, ei), mul(q, 1 - ei)), mul(sub(xi, q), (e - ei) / 2));
+    return { x: xn, v: mul(sub(add(q, mul(sub(xi, q), e)), xn), om) };
+  }
+
+  function candidateBarrier(state, xi, Tr, margin) {
+    const id = state.patient.ident, om = id.omega, mass = id.mass, L = id.Lmax, Ts = id.Ts, sc = id.scale, fc = state.fc, swinging = state.swLeg >= 0;
+    const rows = [];
+    for (let mode = 0; mode <= 1; mode++) for (let j = 0; j <= 1; j++) {
+      const cs = fc[1 - j], hh = half(sc[1 - j]), pa = [clamp(xi[0], cs[0] - hh[0], cs[0] + hh[0]), clamp(xi[1], cs[1] - hh[1], cs[1] + hh[1])];
+      const tsc = Ts[j] * (mode ? CROSS_T : 1), lc = L[j] * (mode ? CROSS_L : 1), tl = swinging ? Math.max(tsc - state.swEl, 0.05) : Tr + tsc, e = Math.exp(om * tl), land = add(pa, mul(sub(xi, pa), e)), dv = sub(land, cs), d = norm(dv), r = lc - margin, sd = SIDE[j] * dv[1];
+      const crossok = mode === 0 ? sd >= XOVER : sd <= -XOVER_C, valid = !swinging || (state.swLeg === j && state.swMode === mode), h0 = r - d, geom = valid && (swinging || crossok), score = geom ? h0 : -Infinity;
+      rows.push({ mode, j, cs, land, d, r, tl, beta: (e - 1) / (mass * om * om), h0, score, feasible: geom && r > 0 });
+    }
+    let best = rows[0]; for (const row of rows) if (row.score > best.score) best = row;
+    const dv = sub(best.land, best.cs), u = unit(dv), f = mul(u, -Math.max(best.d - best.r, 0) / Math.max(best.beta, 1e-30));
+    return { h0: best.h0, d: best.d, r: best.r, a: best.cs, land0: best.land, beta: best.beta, tl: best.tl, force: f, nfeas: rows.filter(r => r.feasible).length };
+  }
+  function chooseStep(state, xi) {
+    const rows = [];
+    for (let mode = 0; mode <= 1; mode++) for (let j = 0; j <= 1; j++) {
+      const cs = state.fc[1 - j], hh = half(state.patient.scale[1 - j]), pa = [clamp(xi[0], cs[0] - hh[0], cs[0] + hh[0]), clamp(xi[1], cs[1] - hh[1], cs[1] + hh[1])], tsc = state.patient.Ts[j] * (mode ? CROSS_T : 1), lc = state.patient.Lmax[j] * (mode ? CROSS_L : 1), land = add(pa, mul(sub(xi, pa), Math.exp(state.patient.omega * tsc))), dd = sub(land, cs), d = norm(dd), sd = SIDE[j] * dd[1], crossok = mode === 0 ? sd >= XOVER : sd <= -XOVER_C, cviol = mode === 0 ? Math.max(XOVER - sd, 0) : Math.max(sd + XOVER_C, 0), feasible = d <= lc && crossok, violation = Math.max(d - lc, 0) + cviol, key = feasible ? 10 * mode + d / lc : 1000 + violation;
+      const sclip = mode === 0 ? clamp(sd, XOVER, lc) : -clamp(-sd, XOVER_C, lc), yy = SIDE[j] * sclip, w = Math.sqrt(Math.max(lc * lc - yy * yy, 0)), target = feasible ? land : add(cs, [clamp(dd[0], -w, w), yy]);
+      rows.push({ mode, j, key, target, T: tsc, violation });
+    }
+    let best = rows[0]; for (const row of rows) if (row.key < best.key) best = row;
+    return { leg: best.j, mode: best.mode, target: best.target, T: best.T };
+  }
+
+  function patientFor(params) { return params.patient ? patientFrom(params.patient.severity, params.patient.paretic, params.patient) : patientFrom(params.severity, params.paretic); }
+  function makeState(params) {
+    const patient = patientFor(params), idp = params.identified || { mass: patient.mass, omega: patient.omega, tau_r: patient.reaction, Lmax: patient.Lmax, Ts: patient.Ts, scale: patient.scale };
+    patient.ident = { mass: Number(idp.mass), omega: Number(idp.omega || patient.omega), tau_r: Number(idp.tau_r), Lmax: [...idp.Lmax], Ts: [...idp.Ts], scale: [...idp.scale] };
+    const n = Math.round(TRIAL_LENGTH / DT), ds = Math.round(TAU_S / DT), da = Math.round(TAU_A / DT), lag = Math.round(LAG / DT), off = ds + da + lag + 5;
+    const state = { t: 0, k: 0, dt: DT, x: [0, 0], v: [0, 0], xi: [0, 0], fc: [[0, 0.10], [0, -0.10]], feet: { L: [0, 0.10], R: [0, -0.10] }, patient, x0: [0, 0], swLeg: -1, swMode: 0, swEl: 0, swT: 1, swStart: [0, 0], swTarget: [0, 0], swingLeg: -1, steps: 0, violT: -1, level: 0, force: [0, 0], command: [0, 0], Factual: [0, 0], Fprev: [0, 0], FcmdLog: Array.from({ length: n + off }, zero), xLog: Array.from({ length: n + 1 }, zero), vLog: Array.from({ length: n + 1 }, zero), off, ds, da, mlo: lag, mhi: ds + da + lag, W: [], eH: Math.exp(patient.ident.omega * (TAU_S + TAU_A)), vt: -1, impulse: 0, peakForce: 0, peakCatch: 0, trail: [], series: [], decT: Infinity, catchEngaged: false, catchLockX: [0, 0], fallen: false, alive: true, outcome: 'RUNNING', done: false, pushed: false, push: [...params.push], ctrl: params.ctrl || { id: 'B0' }, cpCause: -1 };
+    for (let ms = state.mhi; ms >= state.mlo; ms--) state.W.push(DT * Math.exp(patient.ident.omega * (ms * DT - LAG)) / (patient.ident.mass * patient.ident.omega));
+    state.xi = capturePoint(state.x, state.v, patient.omega);
+    state.feet = { L: state.fc[0], R: state.fc[1] };
+    return state;
+  }
+  function delayedState(state) { const j = Math.max(state.k - state.ds, 0); return { x: state.xLog[j], v: state.vLog[j] }; }
+  function directionAngle(deg) { const a = deg * Math.PI / 180; return [Math.cos(a), Math.sin(a)]; }
+  function impedance(state) { const k = Number(state.ctrl.k), d = 2 * 0.7 * Math.sqrt(k * state.patient.mass), f = add(mul(state.x_m, -k), mul(state.v_m, -d)), n = norm(f); return n > 300 ? mul(f, 300 / n) : f; }
+  function cpForce(state, hulls) {
+    const id = state.patient.ident, measXi = add(state.x_m, mul(state.v_m, 1 / id.omega)), p = project(measXi, hulls.cop);
+    let xiH = measXi;
+    if (state.ctrl.dc !== false) { xiH = add(add(p, mul(sub(measXi, p), state.eH)), zero()); for (let q = 0; q < state.W.length; q++) { const h = state.FcmdLog[state.off + state.k - state.mhi + q] || [0, 0]; xiH = add(xiH, mul(h, state.W[q])); } }
+    const out = distTo(xiH, hulls.cop) > EPS;
+    state.vt = out ? (state.vt < 0 ? 0 : state.vt + DT) : -1;
+    const shift = state.ctrl.dc === false ? TAU_S : -TAU_A, el = state.vt >= 0 ? Math.max(Math.max(state.vt, 0) + shift, 0) : 0, tr = Math.max(id.tau_r * (state.steps === 0 ? 1 : 0.6) - el, 0);
+    const cb = candidateBarrier(state, xiH, tr, Number(state.ctrl.margin ?? 0.03)), need = out && cb.h0 < 0, mag = norm(cb.force), over = need && mag > F_MAX;
+    if (over && state.alive && state.cpCause < 0) state.cpCause = cb.nfeas === 0 ? 0 : (state.swLeg >= 0 || cb.tl < 0.25 ? 1 : 2);
+    return { force: need ? mul(cb.force, over ? F_MAX / Math.max(mag, 1e-9) : 1) : [0, 0], catch: over };
+  }
+  function controllerForce(state, hulls) {
+    const ctrl = state.ctrl, cg = mul(add(hulls.cA, hulls.cB), 0.5);
+    if (ctrl.id === 'B0') return { force: [0, 0], catch: false };
+    const d = sub(state.x_m, cg);
+    if ((ctrl.id === 'B1' || ctrl.id === 'B2') && norm(d) > Number(ctrl.threshold ?? 0.14)) return { force: ctrl.id === 'B2' ? impedance(state) : [0, 0], catch: true };
+    if (ctrl.id === 'B2') return { force: impedance(state), catch: false };
+    if (ctrl.id === 'CP') return cpForce(state, hulls);
+    return { force: [0, 0], catch: false };
+  }
+
+  // Testable one-tick physics function. State is mutated intentionally for real-time playback.
+  function stepTrial(state, ctrl, dt) {
+    state.ctrl = ctrl;
+    if (state.done) return state;
+    const k = state.k;
+    if (k === Math.round(0.3 / DT)) { state.v = add(state.v, state.push); state.pushed = true; }
+    const hulls = stateHulls(state);
+    if (state.alive && !state.catchEngaged && distTo(state.x, hulls.geo) > D_FALL) { state.fallen = true; state.alive = false; state.outcome = 'FALL'; state.done = true; return state; }
+    state.xLog[k] = [...state.x]; state.vLog[k] = [...state.v];
+    const delayed = delayedState(state); state.x_m = delayed.x; state.v_m = delayed.v;
+    const wA = hulls.hA[0] * hulls.hA[1], wB = hulls.hB[0] * hulls.hB[1], cS = mul(add(mul(hulls.cA, wA), mul(hulls.cB, wB)), 1 / (wA + wB));
+    const xi = add(state.x, mul(state.v, 1 / state.patient.omega)), p = project(add(xi, mul(sub(xi, cS), KC_ANKLE)), hulls.cop), distXi = distTo(xi, hulls.cop);
+    const decision = controllerForce(state, hulls); let desired = decision.force;
+    if (decision.catch && state.decT === Infinity && !state.catchEngaged) state.decT = state.t;
+    if (state.alive && !state.catchEngaged && state.t >= state.decT + LOCK_DELAY - 1e-9) { state.catchEngaged = true; state.catchLockX = [...state.x]; }
+    if (state.catchEngaged) { state.level = 2; desired = add(mul(sub(state.x, state.catchLockX), -4000), mul(state.v, -800)); }
+    else state.level = Number.isFinite(state.decT) ? 2 : (norm(desired) > 0.5 ? 1 : 0);
+    if (!state.catchEngaged && state.ctrl.id === 'CP' && norm(desired) > F_MAX) desired = mul(desired, F_MAX / norm(desired));
+    state.command = desired; state.FcmdLog[state.off + k] = state.catchEngaged ? [0, 0] : [...desired];
+    const alpha = 1 - Math.exp(-dt / LAG), delayedCommand = state.FcmdLog[state.off + k - state.da] || [0, 0];
+    state.Factual = add(state.Factual, mul(sub(delayedCommand, state.Factual), alpha));
+    const catchF = state.catchEngaged ? add(mul(sub(state.x, state.catchLockX), -4000), mul(state.v, -800)) : [0, 0], totalF = add(state.Factual, catchF);
+    state.Fprev = [...state.Factual]; state.force = totalF;
+    state.impulse += (state.alive ? norm(totalF) : 0) * dt; state.peakForce = Math.max(state.peakForce, state.alive ? norm(state.Factual) : 0); state.peakCatch = Math.max(state.peakCatch, state.alive ? norm(catchF) : 0);
+    const lip = lipStep(state.x, state.v, p, totalF, state.patient.mass, state.patient.omega, dt); state.x = lip.x; state.v = lip.v; state.xi = capturePoint(state.x, state.v, state.patient.omega);
+    const wasSwing = state.swLeg >= 0; if (wasSwing) state.swEl += dt;
+    if (wasSwing && state.swEl >= state.swT - 1e-9) { state.fc[state.swLeg] = [...state.swTarget]; state.swLeg = -1; state.violT = -1; }
+    if (state.swLeg >= 0) state.fc[state.swLeg] = lerp(state.swStart, state.swTarget, clamp(state.swEl / state.swT, 0, 1));
+    state.swingLeg = state.swLeg < 0 ? null : (state.swLeg === 0 ? 'L' : 'R'); state.feet.L = [...state.fc[0]]; state.feet.R = [...state.fc[1]];
+    const noSwing = !wasSwing, violation = distXi > EPS;
+    state.violT = noSwing ? (violation ? (state.violT < 0 ? 0 : state.violT + dt) : -1) : state.violT;
+    const teff = state.patient.reaction * (state.steps > 0 ? 0.6 : 1), lift = noSwing && state.violT >= teff - 1e-9 && state.steps < MAX_STEPS && state.alive;
+    if (lift) { const ch = chooseStep(state, xi); state.swLeg = ch.leg; state.swMode = ch.mode; state.swEl = 0; state.swT = ch.T; state.swStart = [...state.fc[ch.leg]]; state.swTarget = [...ch.target]; state.steps++; state.violT = -1; state.swingLeg = ch.leg === 0 ? 'L' : 'R'; }
+    const support = supportFor(state); state.trail.push({ t: state.t, x: [...state.x], xi: [...state.xi], f: [...state.force], level: state.level, feet: { L: [...state.feet.L], R: [...state.feet.R] }, swing: state.swingLeg }); state.series.push({ t: state.t, force: norm(state.force), outside: outsideDistance(state.xi, support) });
+    state.t += dt; state.k++;
+    if (state.t >= TRIAL_LENGTH - 1e-12) { state.outcome = state.fallen ? 'FALL' : state.catchEngaged ? 'CAUGHT' : state.impulse >= 1 ? 'ASSISTED' : 'SELF'; state.done = true; }
+    return state;
+  }
+
+  function runTrial(params) {
+    const state = makeState(params);
+    while (!state.done && state.t < TRIAL_LENGTH) stepTrial(state, params.ctrl, DT);
+    if (state.outcome === 'RUNNING') state.outcome = state.fallen ? 'FALL' : state.catchEngaged ? 'CAUGHT' : state.impulse < 1 ? 'ASSISTED' : 'SELF';
+    state.n_steps = state.steps; state.peak_force = state.peakForce;
+    return state;
+  }
+
+  // Current Python-reference runtime.  This deliberately shadows the compact
+  // first-pass functions above so the drawing code and public API remain stable.
+  function patientFor(params) {
+    return params.patient ? patientFrom(params.patient.severity, params.patient.paretic, params.patient) : patientFrom(params.severity, params.paretic);
+  }
+  function makeState(params) {
+    const patient = patientFor(params), ctrl = params.ctrl || { id: 'B0' };
+    let idp = params.identified || { mass: patient.mass, omega: patient.omega, tau_r: patient.reaction, Lmax: patient.Lmax, Ts: patient.Ts, scale: patient.scale };
+    if (ctrl.id === 'CP-pop') idp = { mass: 72.5, omega: Math.sqrt(G / 0.925), tau_r: 0.35, Lmax: [0.45, 0.45], Ts: [0.4625, 0.4625], scale: [0.825, 0.825] };
+    patient.ident = { mass: Number(idp.mass), omega: Number(idp.omega), tau_r: Number(idp.tau_r), Lmax: [...idp.Lmax], Ts: [...idp.Ts], scale: [...idp.scale] };
+    const n = Math.round(TRIAL_LENGTH / DT), ds = Math.round(TAU_S / DT), da = Math.round(TAU_A / DT), lag = Math.round(LAG / DT), off = ds + da + lag + 5;
+    const state = { t: 0, k: 0, dt: DT, x: [0, 0], v: [0, 0], xi: [0, 0], fc: [[0, 0.10], [0, -0.10]], feet: { L: [0, 0.10], R: [0, -0.10] }, patient,
+      x0: [0, 0], swLeg: -1, swMode: 0, swEl: 0, swT: 1, swStart: [0, 0], swTarget: [0, 0], swingLeg: -1, steps: 0, violT: -1,
+      level: 0, force: [0, 0], command: [0, 0], Factual: [0, 0], Fprev: [0, 0], impulse: 0, peakForce: 0, peakCatch: 0,
+      trail: [], series: [], decT: Infinity, tForce: NaN, tEngage: NaN, catchEngaged: false, catchLockX: [0, 0], fallen: false, alive: true,
+      outcome: 'RUNNING', done: false, pushed: false, push: [...(params.push || [0, 0])], ctrl, cpCause: -1, everCatchDecided: false, record: params.render === true,
+      off, ds, da, mlo: lag, mhi: ds + da + lag, FcmdLog: Array.from({ length: n + off }, () => [0, 0]), FactLog: Array.from({ length: n + off }, () => [0, 0]),
+      xLog: Array.from({ length: n + 1 }, () => [0, 0]), vLog: Array.from({ length: n + 1 }, () => [0, 0]), vt: -1, Wpast: [], Wcmd: [], Wf: 0, eH: Math.exp(patient.ident.omega * (ds + da) * DT) };
+    const alpha = 1 - Math.exp(-DT / LAG), om = patient.ident.omega, mass = patient.ident.mass, H = ds + da;
+    const W = [];
+    for (let q = 0; q < H; q++) W.push((Math.exp(om * DT) - 1) / (mass * om * om) * Math.exp(om * DT * (H - 1 - q)));
+    state.Wpast = W.slice(0, ds);
+    const r = new Array(da).fill(0); let acc = 0;
+    for (let q = da - 1; q >= 0; q--) { acc = W[ds + q] + (1 - alpha) * acc; r[q] = acc; }
+    state.Wcmd = r.map(v => alpha * v); state.Wf = (1 - alpha) * r[0];
+    return state;
+  }
+  function stateHulls(state) {
+    const single = state.swLeg >= 0, st = single ? 1 - state.swLeg : 0, lA = single ? st : 0, lB = single ? st : 1;
+    const cA = state.fc[lA], cB = state.fc[lB], hA = half(state.patient.scale[lA]), hB = half(state.patient.scale[lB]);
+    return { single, lA, lB, cA, cB, hA, hB, cop: makeHull(cA, hA, cB, hB), geo: makeHull(cA, HS, cB, HS) };
+  }
+  function hullBox(h) { return { xmin: h.lo[0], xmax: h.hi[0], ymin: h.lo[1], ymax: h.hi[1] }; }
+  function supportFor(state) { return hullBox(stateHulls(state).geo); }
+  function copFor(state) { return hullBox(stateHulls(state).cop); }
+  function centreRect(r) { return [(r.xmin + r.xmax) / 2, (r.ymin + r.ymax) / 2]; }
+  function candidateBarrier(state, xi, Tr, margin, idOverride) {
+    const id = idOverride || state.patient.ident, om = id.omega, mass = id.mass, fc = state.fc, swinging = state.swLeg >= 0;
+    const rows = [];
+    for (let mode = 0; mode <= 1; mode++) for (let j = 0; j <= 1; j++) {
+      const cs = fc[1 - j], hh = half(id.scale[1 - j]);
+      const pa = [clamp(xi[0], cs[0] - hh[0], cs[0] + hh[0]), clamp(xi[1], cs[1] - hh[1], cs[1] + hh[1])];
+      const tsc = id.Ts[j] * (mode ? CROSS_T : 1), lc = id.Lmax[j] * (mode ? CROSS_L : 1), tl = swinging ? Math.max(tsc - state.swEl, 0.05) : Tr + tsc;
+      const e = Math.exp(om * tl), land = add(pa, mul(sub(xi, pa), e)), dv = sub(land, cs), d = norm(dv), r = lc - margin, sd = SIDE[j] * dv[1];
+      const crossok = mode === 0 ? sd >= XOVER : sd <= -XOVER_C, valid = !swinging || (state.swLeg === j && state.swMode === mode), h0 = r - d, geom = valid && (swinging || crossok);
+      rows.push({ mode, j, cs, land, d, r, tl, beta: (e - 1) / (mass * om * om), h0, score: geom ? h0 : -Infinity, feasible: geom });
+    }
+    let best = null; for (const row of rows) if (best === null || row.score > best.score) best = row;
+    const dv = sub(best.land, best.cs), u = unit(dv), f = mul(u, -Math.max(best.d - best.r, 0) / Math.max(best.beta, 1e-30));
+    return { h0: best.h0, d: best.d, r: best.r, a: best.cs, land0: best.land, beta: best.beta, tl: best.tl, force: f, nvalid: rows.filter(r => r.feasible).length, anyvalid: rows.some(r => r.feasible) };
+  }
+  function chooseStep(state, xi) {
+    const p = state.patient, rows = [];
+    for (let mode = 0; mode <= 1; mode++) for (let j = 0; j <= 1; j++) {
+      const cs = state.fc[1 - j], hh = half(p.scale[1 - j]), pa = [clamp(xi[0], cs[0] - hh[0], cs[0] + hh[0])]; pa.push(clamp(xi[1], cs[1] - hh[1], cs[1] + hh[1]));
+      const tsc = p.Ts[j] * (mode ? CROSS_T : 1), lc = p.Lmax[j] * (mode ? CROSS_L : 1), land = add(pa, mul(sub(xi, pa), Math.exp(p.omega * tsc))), dd = sub(land, cs), d = norm(dd), sd = SIDE[j] * dd[1];
+      const crossok = mode === 0 ? sd >= XOVER : sd <= -XOVER_C, cviol = mode === 0 ? Math.max(XOVER - sd, 0) : Math.max(sd + XOVER_C, 0), feas = d <= lc && crossok, violation = Math.max(d - lc, 0) + cviol, key = feas ? 10 * mode + d / lc : 1000 + violation;
+      const sclip = mode === 0 ? clamp(sd, XOVER, lc) : -clamp(-sd, XOVER_C, lc), yy = SIDE[j] * sclip, w = Math.sqrt(Math.max(lc * lc - yy * yy, 0)), target = feas ? land : add(cs, [clamp(dd[0], -w, w), yy]);
+      rows.push({ mode, j, key, target, T: tsc });
+    }
+    let best = rows[0]; for (const row of rows) if (row.key < best.key) best = row;
+    return { leg: best.j, mode: best.mode, target: best.target, T: best.T };
+  }
+  function predictXi(state, xiM, p) {
+    const id = state.patient.ident, k = state.k, out = add(p, mul(sub(xiM, p), state.eH));
+    for (let q = 0; q < state.ds; q++) { const f = state.FactLog[state.off + k - state.ds + q]; out[0] += state.Wpast[q] * f[0]; out[1] += state.Wpast[q] * f[1]; }
+    const fp = state.FactLog[state.off + k - 1]; out[0] += state.Wf * fp[0]; out[1] += state.Wf * fp[1];
+    for (let q = 0; q < state.da; q++) { const f = state.FcmdLog[state.off + k - state.da + q]; out[0] += state.Wcmd[q] * f[0]; out[1] += state.Wcmd[q] * f[1]; }
+    return out;
+  }
+  function cSFor(hulls) { const wa = hulls.hA[0] * hulls.hA[1], wb = hulls.hB[0] * hulls.hB[1]; return mul(add(mul(hulls.cA, wa), mul(hulls.cB, wb)), 1 / (wa + wb)); }
+  function impedance(state) { const k = Number(state.ctrl.k ?? 800), d = 2 * 0.7 * Math.sqrt(k * state.patient.ident.mass), f = add(mul(state.x_m, -k), mul(state.v_m, -d)), n = norm(f); return n > 300 ? mul(f, 300 / n) : f; }
+  function cpForce(state, hulls) {
+    const id = state.patient.ident, xiM = add(state.x_m, mul(state.v_m, 1 / id.omega)), hull = makeHull(hulls.cA, half(id.scale[hulls.lA]), hulls.cB, half(id.scale[hulls.lB]));
+    let xiH = xiM, shift = TAU_S;
+    if (state.ctrl.dc !== false) { const p = project(xiM, hull); xiH = predictXi(state, xiM, p); shift = -TAU_A; }
+    const out = distTo(xiH, hull) > EPS; state.vt = out ? (state.vt < 0 ? 0 : state.vt + DT) : -1;
+    const el = state.vt >= 0 ? Math.max(Math.max(state.vt, 0) + shift, 0) : 0, tr = Math.max(id.tau_r * (state.steps === 0 ? 1 : 0.6) - el, 0), cb = candidateBarrier(state, xiH, tr, Number(state.ctrl.margin ?? 0.03), id), need = out && (!cb.anyvalid || cb.h0 < 0);
+    const fs = cb.anyvalid ? cb.force : [0, 0], mag = norm(fs), over = need && (!cb.anyvalid || mag > F_MAX);
+    if (over && state.alive && state.cpCause < 0) state.cpCause = !cb.anyvalid ? 0 : (state.swLeg >= 0 || cb.tl < 0.25 ? 1 : 2);
+    return { force: need ? mul(fs, over ? F_MAX / Math.max(mag, 1e-9) : 1) : [0, 0], catch: over };
+  }
+  function controllerForce(state, hulls) {
+    const ctrl = state.ctrl, cS = cSFor(hulls);
+    if (ctrl.id === 'B0') return { force: [0, 0], catch: false };
+    if (ctrl.id === 'B1') return { force: [0, 0], catch: norm(sub(state.x_m, cS)) > Number(ctrl.threshold ?? 0.08) };
+    if (ctrl.id === 'B1-XCoM') { const xi = add(state.x_m, mul(state.v_m, 1 / state.patient.omega)); return { force: [0, 0], catch: distTo(xi, hulls.geo) > Number(ctrl.threshold ?? 0.08) }; }
+    if (ctrl.id === 'B2') return { force: impedance(state), catch: norm(sub(state.x_m, cS)) > Number(ctrl.threshold ?? 0.14) };
+    if (ctrl.id === 'CP' || ctrl.id === 'CP-pop') return cpForce(state, hulls);
+    return { force: [0, 0], catch: false };
+  }
+  function stepTrial(state, ctrl, dt) {
+    state.ctrl = ctrl; if (state.done) return state; const k = state.k;
+    if (k === Math.round(0.3 / DT)) { state.v = add(state.v, state.push); state.pushed = true; }
+    state.xLog[k] = [...state.x]; state.vLog[k] = [...state.v]; state.x_m = state.xLog[Math.max(k - state.ds, 0)]; state.v_m = state.vLog[Math.max(k - state.ds, 0)];
+    const hulls = stateHulls(state), xi = add(state.x, mul(state.v, 1 / state.patient.omega));
+    if (state.alive && !state.catchEngaged && distTo(state.x, hulls.geo) > D_FALL) { state.fallen = true; state.alive = false; }
+    const cS = cSFor(hulls), p = project(add(xi, mul(sub(xi, cS), KC_ANKLE)), hulls.cop), distXi = distTo(xi, hulls.cop), decision = controllerForce(state, hulls);
+    let fcmd = decision.force; if (decision.catch && state.decT === Infinity && state.alive) { state.decT = state.t; state.everCatchDecided = true; }
+    if (state.alive && !state.catchEngaged && state.t >= state.decT + LOCK_DELAY - 1e-9) { state.catchEngaged = true; state.catchLockX = [...state.x]; state.tEngage = state.t; }
+    if (state.catchEngaged) fcmd = [0, 0]; state.level = Number.isFinite(state.decT) ? 2 : (norm(fcmd) > 0.5 ? 1 : 0);
+    state.command = [...fcmd]; state.FcmdLog[state.off + k] = [...fcmd];
+    const alpha = 1 - Math.exp(-dt / LAG), delayedCommand = state.FcmdLog[state.off + k - state.da], before = state.Factual;
+    state.Factual = add(before, mul(sub(delayedCommand, before), alpha));
+    const catchF = state.catchEngaged ? add(mul(sub(state.x, state.catchLockX), -4000), mul(state.v, -800)) : [0, 0], totalF = add(state.Factual, catchF);
+    state.FactLog[state.off + k] = [...state.Factual]; state.force = totalF; state.Fprev = [...state.Factual];
+    if (state.alive && Number.isNaN(state.tForce) && norm(state.Factual) > 0.5) state.tForce = state.t;
+    state.impulse += (state.alive ? norm(totalF) : 0) * dt; state.peakForce = Math.max(state.peakForce, state.alive ? norm(state.Factual) : 0); state.peakCatch = Math.max(state.peakCatch, state.alive ? norm(catchF) : 0);
+    const lip = lipStep(state.x, state.v, p, totalF, state.patient.mass, state.patient.omega, dt); state.x = lip.x; state.v = lip.v; state.xi = add(state.x, mul(state.v, 1 / state.patient.omega));
+    const wasSwing = state.swLeg >= 0; if (wasSwing) state.swEl += dt;
+    if (wasSwing && state.swEl >= state.swT - 1e-9) { state.fc[state.swLeg] = [...state.swTarget]; state.swLeg = -1; state.violT = -1; }
+    const noSwing = !wasSwing, violation = distXi > EPS; state.violT = noSwing ? (violation ? (state.violT < 0 ? 0 : state.violT + dt) : -1) : state.violT;
+    const teff = state.patient.reaction * (state.steps === 0 ? 1 : 0.6), lift = noSwing && state.violT >= teff - 1e-9 && state.steps < MAX_STEPS && state.alive;
+    if (lift) { const ch = chooseStep(state, state.xi); state.swLeg = ch.leg; state.swMode = ch.mode; state.swEl = 0; state.swT = ch.T; state.swStart = [...state.fc[ch.leg]]; state.swTarget = [...ch.target]; state.steps++; state.violT = -1; }
+    const shownL = state.swLeg === 0 ? lerp(state.swStart, state.swTarget, clamp(state.swEl / state.swT, 0, 1)) : state.fc[0], shownR = state.swLeg === 1 ? lerp(state.swStart, state.swTarget, clamp(state.swEl / state.swT, 0, 1)) : state.fc[1];
+    state.feet.L = [...shownL]; state.feet.R = [...shownR]; state.swingLeg = state.swLeg < 0 ? -1 : state.swLeg;
+    if (state.record) { const support = supportFor(state); state.trail.push({ t: state.t, x: [...state.x], xi: [...state.xi], f: [...state.force], level: state.level, feet: { L: [...state.feet.L], R: [...state.feet.R] }, swing: state.swingLeg }); state.series.push({ t: state.t, force: norm(state.force), outside: outsideDistance(state.xi, support) }); }
+    state.t += dt; state.k++;
+    if (state.t >= TRIAL_LENGTH - 1e-12) { state.outcome = state.fallen ? 'FALL' : state.catchEngaged ? 'CAUGHT' : state.impulse >= 1 ? 'ASSISTED' : 'SELF'; state.done = true; }
+    return state;
+  }
+  function runTrial(params) {
+    const state = makeState(params); while (!state.done && state.t < TRIAL_LENGTH) stepTrial(state, state.ctrl, DT);
+    state.n_steps = state.steps; state.peak_force = state.peakForce; state.ever_assisted = state.impulse >= 1; state.ever_catch_decided = Number.isFinite(state.decT); state.engaged = state.catchEngaged; state.t_decision = state.ever_catch_decided ? state.decT : NaN; state.t_force = state.tForce; state.t_engage = state.tEngage; state.fallen = state.fallen; return state;
+  }
+
+  function readCtrl() { return { id: els.controller.value, threshold: Number(els.threshold.value), k: Number(els.impedance.value), margin: Number(els.margin.value), dc: true }; }
+  function readParams() { const direction = directionAngle(Number(els.direction.value)); return { severity: Number(els.severity.value), paretic: els.paretic.value, push: mul(direction, Number(els.magnitude.value)), ctrl: readCtrl(), render: true }; } /*
+  function runCurrent() { cancelAnimationFrame(animation); current = makeState(readParams()); lastTrial = null; els.state.textContent = 'RUNNING'; els.outcome.textContent = '—'; els.outcome.className = 'outcome'; lastFrame = 0; animation = requestAnimationFrame(playFrame); }
+  */
+  function runCurrent() { cancelAnimationFrame(animation); current = makeState(readParams()); lastTrial = null; els.state.textContent = 'RUNNING'; els.outcome.textContent = ''; els.outcome.className = 'outcome'; lastFrame = 0; animation = requestAnimationFrame(playFrame); }
+  function playFrame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.055, (now - lastFrame) / 1000) * (els.slow.checked ? 0.25 : 1); lastFrame = now;
+    let ticks = Math.max(1, Math.round(elapsed / DT));
+    while (ticks-- && current && !current.done) stepTrial(current, current.ctrl, DT);
+    drawAll(current);
+    if (current && !current.done) animation = requestAnimationFrame(playFrame); else finishCurrent();
+  }
+  const outcomeLabels = { SELF: 'Recovered alone', ASSISTED: 'Recovered with a nudge', CAUGHT: 'Harness catch', FALL: 'Fall' };
+  const levelLabels = ['Hands off', 'Nudge', 'Catch'];
+  function outcomeClass(outcome) { return String(outcome || '').toLowerCase(); }
+  function showOutcome(el, outcome) { el.textContent = outcomeLabels[outcome] || ''; el.className = 'outcome ' + outcomeClass(outcome); }
+  function finishCurrent() { if (!current) return; lastTrial = current; els.state.textContent = current.outcome; showOutcome(els.outcome, current.outcome); drawAll(current); }
+
+  const presets = { small: { severity: '.6', magnitude: '.40' }, bigger: { severity: '.6', magnitude: '.52' }, 'too-big': { severity: '.6', magnitude: '.60' } };
+  function applyPreset(name, immediate = false) { const p = presets[name]; if (!p) return; els.controller.value = 'CP'; els.severity.value = p.severity; els.paretic.value = 'L'; els.magnitude.value = p.magnitude; els.direction.value = '90'; els.threshold.value = '.05'; els.impedance.value = '200'; document.querySelectorAll('.preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name)); if (window.history && window.history.replaceState) window.history.replaceState(null, '', '#preset-' + name); updateLabels(); if (immediate) { cancelAnimationFrame(animation); current = runTrial(readParams()); lastTrial = current; els.state.textContent = 'SHOWCASE'; showOutcome(els.outcome, current.outcome); drawAll(current); } else runCurrent(); }
+
+  function cssTokens() { const s = getComputedStyle(document.documentElement); const names = ['--bg','--surface','--surface-2','--surface-3','--fg','--muted','--faint','--border','--border-strong','--grid','--l0','--l1','--l2','--patient','--patient-soft','--reach-fill','--reach-line','--baseline','--violet','--blue','--white']; const o = {}; names.forEach(n => o[n.slice(2).replace(/-([a-z0-9])/g, (_, ch) => ch.toUpperCase())] = s.getPropertyValue(n).trim()); return o; }
+  function fitCanvas(canvas) { const dpr = Math.max(1, window.devicePixelRatio || 1), rect = canvas.getBoundingClientRect(); const w = Math.max(1, rect.width), h = Math.max(1, rect.height); const rw = Math.round(w * dpr), rh = Math.round(h * dpr); if (canvas.width !== rw || canvas.height !== rh) { canvas.width = rw; canvas.height = rh; } const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return { ctx, w, h }; }
+  function drawGrid(ctx, w, h, c) { ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.globalAlpha = .7; for (let x = 0; x < w; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); } for (let y = 0; y < h; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); } ctx.globalAlpha = 1; }
+  function mapTop(p, w, h) { return [w * (0.5 + p[1] / 1.35), h * (0.86 - (p[0] + 0.42) / 1.45)]; }
+  function drawRect(ctx, r, w, h, fill, stroke, alpha = 1) { const a = mapTop([r.xmin, r.ymin], w, h), b = mapTop([r.xmax, r.ymax], w, h); ctx.globalAlpha = alpha; ctx.fillStyle = fill; ctx.fillRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); ctx.strokeStyle = stroke; ctx.strokeRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); ctx.globalAlpha = 1; }
+  function drawTop(state) {
+    const { ctx, w, h } = fitCanvas(topCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); drawGrid(ctx, w, h, c);
+    ctx.save(); ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillStyle = c.faint; ctx.fillText('x 0.25 m', 8, h - 9); ctx.fillText('y', 8, 15); ctx.restore();
+    const support = supportFor(state), cop = copFor(state); drawRect(ctx, support, w, h, c.patientSoft, c.patient, .12); drawRect(ctx, cop, w, h, c.surface3, c.borderStrong, .35);
+    const center = mapTop(centreRect(support), w, h); ctx.strokeStyle = c.borderStrong; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(center[0] - 7, center[1]); ctx.lineTo(center[0] + 7, center[1]); ctx.moveTo(center[0], center[1] - 7); ctx.lineTo(center[0], center[1] + 7); ctx.stroke(); ctx.setLineDash([]);
+    const showDiscs = state.ctrl.id === 'CP'; ['L','R'].forEach(leg => { const stance = leg === 'L' ? 'R' : 'L', q = mapTop(state.feet[stance], w, h), radius = state.patient.lmax[leg] / 1.35 * h; ctx.globalAlpha = showDiscs ? .16 : .06; ctx.fillStyle = c.patient; ctx.beginPath(); ctx.arc(q[0], q[1], radius, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; ctx.strokeStyle = c.patient; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(q[0], q[1], radius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); });
+    const trail = state.trail || []; for (let i = 1; i < trail.length; i++) { const a = mapTop(trail[i - 1].x, w, h), b = mapTop(trail[i].x, w, h); ctx.strokeStyle = trail[i].level === 2 ? c.l2 : trail[i].level === 1 ? c.l1 : c.l0; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    ['L','R'].forEach(leg => { const foot = state.feet[leg], r = rectFor(foot), pair = mapTop([r.xmin, r.ymin], w, h), pair2 = mapTop([r.xmax, r.ymax], w, h); ctx.fillStyle = leg === state.patient.paretic ? c.patientSoft : c.surface; ctx.strokeStyle = leg === state.patient.paretic ? c.patient : c.fg; ctx.lineWidth = 1.5; ctx.fillRect(Math.min(pair[0], pair2[0]), Math.min(pair[1], pair2[1]), Math.abs(pair2[0] - pair[0]), Math.abs(pair2[1] - pair[1])); ctx.strokeRect(Math.min(pair[0], pair2[0]), Math.min(pair[1], pair2[1]), Math.abs(pair2[0] - pair[0]), Math.abs(pair2[1] - pair[1])); if (leg === state.patient.paretic) { ctx.save(); ctx.globalAlpha = .65; ctx.strokeStyle = c.patient; for (let k = -20; k < 25; k += 7) { ctx.beginPath(); ctx.moveTo(pair[0] + k, pair[1]); ctx.lineTo(pair[0] + k + 13, pair2[1]); ctx.stroke(); } ctx.restore(); } ctx.fillStyle = c.fg; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText(leg + (leg === state.patient.paretic ? ' · paretic' : ''), Math.min(pair[0], pair2[0]) + 3, Math.max(pair[1], pair2[1]) - 4); });
+    const com = mapTop(state.x, w, h), xi = mapTop(state.xi, w, h); ctx.fillStyle = c.patient; ctx.beginPath(); ctx.arc(com[0], com[1], 5, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.fg; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(xi[0], xi[1], 8, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(xi[0] - 12, xi[1]); ctx.lineTo(xi[0] + 12, xi[1]); ctx.moveTo(xi[0], xi[1] - 12); ctx.lineTo(xi[0], xi[1] + 12); ctx.stroke();
+    const fn = norm(state.force); if (fn > 1) { const end = mapTop(add(state.x, mul(unit(state.force), .16 + .12 * Math.min(fn / F_MAX, 1))), w, h); ctx.strokeStyle = state.level === 2 ? c.l2 : c.l1; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(com[0], com[1]); ctx.lineTo(end[0], end[1]); ctx.stroke(); const ang = Math.atan2(end[1] - com[1], end[0] - com[0]); ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.moveTo(end[0], end[1]); ctx.lineTo(end[0] - 8 * Math.cos(ang - .5), end[1] - 8 * Math.sin(ang - .5)); ctx.lineTo(end[0] - 8 * Math.cos(ang + .5), end[1] - 8 * Math.sin(ang + .5)); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('COM', com[0] + 8, com[1] - 5); ctx.fillText('ξ', xi[0] + 10, xi[1] + 4);
+  }
+  function drawSide(state) {
+    const { ctx, w, h } = fitCanvas(sideCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); drawGrid(ctx, w, h, c); const sx = y => w * (.5 + y / .7), floor = h * .87, z = v => floor - v * h * .61;
+    ctx.strokeStyle = c.borderStrong; ctx.lineWidth = 3; ctx.strokeRect(sx(-.29), z(1.28), sx(.29) - sx(-.29), floor - z(1.28)); ctx.strokeStyle = c.border; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx(-.29), z(.25)); ctx.lineTo(sx(-.29), z(1.2)); ctx.moveTo(sx(.29), z(.25)); ctx.lineTo(sx(.29), z(1.2)); ctx.moveTo(sx(-.29), z(.25)); ctx.lineTo(sx(.29), z(.25)); ctx.stroke();
+    const brace = state.level === 2 ? c.l2 : state.level === 1 ? c.l1 : c.patient; ctx.strokeStyle = c.patient; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(sx(-.2), z(.95)); ctx.quadraticCurveTo(sx(0), z(.87), sx(.2), z(.95)); ctx.stroke(); ctx.strokeStyle = brace; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(sx(-.18), z(.94)); ctx.lineTo(sx(.18), z(.94)); ctx.stroke();
+    const pelvisY = clamp(state.x[1], -.2, .2); ctx.strokeStyle = c.patient; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx(pelvisY), z(.94)); ctx.lineTo(sx(pelvisY), z(1.42)); ctx.stroke(); ctx.fillStyle = c.patient; ctx.beginPath(); ctx.arc(sx(pelvisY), z(1.5), 13, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.fg; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx(pelvisY) - 10, z(1.23)); ctx.lineTo(sx(pelvisY) - .07 * w, z(.94)); ctx.moveTo(sx(pelvisY) + 10, z(1.23)); ctx.lineTo(sx(pelvisY) + .07 * w, z(.94)); ctx.stroke();
+    ['L','R'].forEach(leg => { const y = state.feet[leg][1]; ctx.strokeStyle = leg === state.patient.paretic ? c.patient : c.fg; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(sx(pelvisY), z(.9)); ctx.lineTo(sx(y), z(.16)); ctx.stroke(); ctx.fillStyle = c.fg; ctx.fillRect(sx(y) - 12, z(.14), 24, 5); });
+    ctx.strokeStyle = brace; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx(-.03), z(1.28)); ctx.lineTo(sx(pelvisY), z(.98)); ctx.moveTo(sx(.03), z(1.28)); ctx.lineTo(sx(pelvisY), z(.98)); ctx.stroke(); ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('brace', 7, z(.98) - 9); ctx.fillText('harness', 7, z(1.28) - 7); ctx.fillText('front', 7, h - 8);
+  }
+  function drawChart(state) {
+    const { ctx, w, h } = fitCanvas(chartCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); const left = 43, right = 12, top = 12, bottom = 28, pw = w - left - right, ph = h - top - bottom, series = state.series || [];
+    ctx.strokeStyle = c.grid; ctx.lineWidth = 1; for (let i = 0; i <= 4; i++) { const y = top + ph * i / 4; ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + pw, y); ctx.stroke(); } ctx.strokeStyle = c.borderStrong; ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, top + ph); ctx.lineTo(left + pw, top + ph); ctx.stroke();
+    const maxF = Math.max(150, ...series.map(x => x.force || 0)), maxO = Math.max(.1, ...series.map(x => x.outside || 0)); const tx = t => left + pw * clamp(t / TRIAL_LENGTH, 0, 1); const yF = v => top + ph * (1 - v / maxF), yO = v => top + ph * (1 - v / maxO);
+    function plot(key, yfn, color) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); series.forEach((p, i) => { const x = tx(p.t), y = yfn(p[key]); if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y); }); ctx.stroke(); }
+    plot('force', yF, c.l1); plot('outside', yO, c.l2); ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('N', 8, top + 4); ctx.fillText('m', 23, top + 4); ctx.fillText('0', 27, top + ph + 3); ctx.fillText(maxF.toFixed(0), 3, top + 9); ctx.fillText('0', left - 4, h - 8); ctx.fillText('1.5', left + pw / 2 - 8, h - 8); ctx.fillText('3.0 s', left + pw - 24, h - 8);
+  }
+  function levelColor(state, c) { return state.level === 2 ? c.l2 : state.level === 1 ? c.l1 : c.l0; }
+  function drawGrid(ctx, w, h, c) {
+    ctx.save(); ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.globalAlpha = .45;
+    for (let x = -.4; x <= .701; x += .1) { const a = mapTop([x, -.68], w, h), b = mapTop([x, .68], w, h); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    for (let y = -.6; y <= .601; y += .1) { const a = mapTop([-.42, y], w, h), b = mapTop([.7, y], w, h); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    ctx.restore();
+  }
+  function sole(ctx, foot, leg, state, w, h, c) {
+    const pts = [[foot[0] - HS[0], foot[1] - HS[1]], [foot[0] + HS[0], foot[1] - HS[1]], [foot[0] + HS[0], foot[1] + HS[1]], [foot[0] - HS[0], foot[1] + HS[1]]].map(p => mapTop(p, w, h));
+    ctx.save(); ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fillStyle = leg === state.patient.paretic ? c.patientSoft : c.surface; ctx.strokeStyle = leg === state.patient.paretic ? c.patient : c.fg; ctx.lineWidth = 1.7; ctx.fill(); ctx.stroke();
+    if (leg === state.patient.paretic) { ctx.save(); ctx.clip(); ctx.strokeStyle = c.patient; ctx.globalAlpha = .7; for (let q = -30; q < 45; q += 8) { ctx.beginPath(); ctx.moveTo(pts[0][0] + q, pts[0][1] + 20); ctx.lineTo(pts[0][0] + q + 18, pts[0][1] - 20); ctx.stroke(); } ctx.restore(); }
+    const label = leg + (leg === state.patient.paretic ? ' · weak' : ''); ctx.fillStyle = c.fg; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText(label, pts[0][0] + 3, pts[0][1] + 13); ctx.restore();
+  }
+  function arrow(ctx, a, b, color, width = 4) { const ang = Math.atan2(b[1] - a[1], b[0] - a[0]); ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] - 10 * Math.cos(ang - .5), b[1] - 10 * Math.sin(ang - .5)); ctx.lineTo(b[0] - 10 * Math.cos(ang + .5), b[1] - 10 * Math.sin(ang + .5)); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  function drawTop(state) {
+    const { ctx, w, h } = fitCanvas(topCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); drawGrid(ctx, w, h, c);
+    const support = supportFor(state), cop = copFor(state); drawRect(ctx, support, w, h, c.patientSoft, c.patient, .10); drawRect(ctx, cop, w, h, c.reachFill, c.reachLine, .10);
+    ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('support', 8, h - 9);
+    const reachLeg = state.patient.paretic, idx = reachLeg === 'L' ? 0 : 1, stance = reachLeg === 'L' ? 'R' : 'L', q = mapTop(state.feet[stance], w, h), rx = state.patient.Lmax[idx] / 1.45 * h * .72, ry = state.patient.Lmax[idx] / 1.35 * w * .72; ctx.save(); ctx.globalAlpha = state.ctrl.id === 'CP' ? .13 : .06; ctx.fillStyle = c.reachFill; ctx.strokeStyle = c.reachLine; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(q[0], q[1], ry, rx, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = .8; ctx.stroke(); ctx.restore();
+    const trail = state.trail || []; for (let i = 1; i < trail.length; i += 3) { const a = mapTop(trail[i - 1].x, w, h), b = mapTop(trail[i].x, w, h); ctx.strokeStyle = trail[i].level === 2 ? c.l2 : trail[i].level === 1 ? c.l1 : c.l0; ctx.lineWidth = 2.2; ctx.globalAlpha = .9; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } ctx.globalAlpha = 1;
+    ['L','R'].forEach(leg => sole(ctx, state.feet[leg], leg, state, w, h, c));
+    ['L','R'].forEach(leg => { const p = mapTop(state.fc[leg === 'L' ? 0 : 1], w, h); ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p[0] - 5, p[1]); ctx.lineTo(p[0] + 5, p[1]); ctx.moveTo(p[0], p[1] - 5); ctx.lineTo(p[0], p[1] + 5); ctx.stroke(); });
+    const com = mapTop(state.x, w, h), xi = mapTop(state.xi, w, h); ctx.fillStyle = c.patient; ctx.beginPath(); ctx.arc(com[0], com[1], 5, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(xi[0], xi[1], 10, 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = c.fg; ctx.font = '600 10px IBM Plex Mono, monospace'; ctx.fillText('must step here', xi[0] + 13, xi[1] + 4); ctx.fillStyle = c.muted; ctx.fillText('COM', com[0] + 8, com[1] - 6);
+    let visualForce = state.force, visualLevel = state.level; if (norm(visualForce) <= 1 && trail.length) for (let i = trail.length - 1; i >= 0; i--) if (norm(trail[i].f) > 1) { visualForce = trail[i].f; visualLevel = trail[i].level; break; } const fn = norm(visualForce); if (fn > 1) arrow(ctx, com, mapTop(add(state.x, mul(unit(visualForce), .19 + .12 * Math.min(fn / F_MAX, 1))), w, h), visualLevel === 2 ? c.l2 : c.l1, 5);
+  }
+  function drawSide(state) {
+    const { ctx, w, h } = fitCanvas(sideCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); const sx = y => w * (.5 + y / .72), floor = h * .87, z = v => floor - v * h * .52;
+    ctx.strokeStyle = c.borderStrong; ctx.lineWidth = 2; ctx.strokeRect(sx(-.29), z(1.28), sx(.29) - sx(-.29), floor - z(1.28)); ctx.strokeStyle = c.border; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx(-.29), z(.2)); ctx.lineTo(sx(-.29), z(1.18)); ctx.moveTo(sx(.29), z(.2)); ctx.lineTo(sx(.29), z(1.18)); ctx.moveTo(sx(-.29), z(.2)); ctx.lineTo(sx(.29), z(.2)); ctx.stroke();
+    const brace = levelColor(state, c), pelvis = sx(clamp(state.x[1], -.2, .2)), shoulder = z(1.28), hip = z(.91), head = z(1.52); ctx.strokeStyle = brace; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx(-.17), hip); ctx.lineTo(sx(.17), hip); ctx.stroke(); ctx.strokeStyle = c.patient; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(pelvis, hip); ctx.lineTo(pelvis, shoulder); ctx.stroke(); ctx.fillStyle = c.surface; ctx.strokeStyle = c.patient; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(pelvis, head, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pelvis - 10, z(1.37)); ctx.lineTo(pelvis + 10, z(1.37)); ctx.stroke();
+    ['L','R'].forEach(leg => { const foot = sx(state.feet[leg][1]); ctx.strokeStyle = leg === state.patient.paretic ? c.patient : c.fg; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(pelvis, hip); ctx.lineTo(foot, z(.18)); ctx.stroke(); ctx.fillStyle = leg === state.patient.paretic ? c.patientSoft : c.surface; ctx.fillRect(foot - 15, z(.17), 30, 6); ctx.strokeRect(foot - 15, z(.17), 30, 6); });
+    const taut = state.level === 2 || state.catchEngaged; ctx.strokeStyle = taut ? c.l2 : c.borderStrong; ctx.lineWidth = taut ? 3 : 1.5; ctx.setLineDash(taut ? [] : [4, 4]); ctx.beginPath(); ctx.moveTo(sx(-.04), shoulder); ctx.lineTo(pelvis, hip + 3); ctx.moveTo(sx(.04), shoulder); ctx.lineTo(pelvis, hip + 3); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('harness', 7, shoulder - 8); ctx.fillText('brace', 7, hip - 8); ctx.fillText('front', 7, h - 8); if (norm(state.force) > 1) arrow(ctx, [pelvis, hip], [pelvis + clamp(state.force[1] / F_MAX, -.28, .28) * w, hip], state.level === 2 ? c.l2 : c.l1, 4);
+  }
+  function drawChart(state) {
+    const { ctx, w, h } = fitCanvas(chartCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); const left = 46, right = 12, top = 12, bottom = 28, pw = Math.max(1, w - left - right), ph = Math.max(1, h - top - bottom), series = state.series || [];
+    ctx.strokeStyle = c.grid; ctx.lineWidth = 1; for (let i = 0; i <= 4; i++) { const y = top + ph * i / 4; ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + pw, y); ctx.stroke(); } ctx.strokeStyle = c.borderStrong; ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, top + ph); ctx.lineTo(left + pw, top + ph); ctx.stroke();
+    const maxF = Math.max(150, ...series.map(x => x.force || 0)), maxO = Math.max(.1, ...series.map(x => x.outside || 0)), tx = t => left + pw * clamp(t / TRIAL_LENGTH, 0, 1), yF = v => top + ph * (1 - v / maxF), yO = v => top + ph * (1 - v / maxO);
+    function plot(key, yfn, color) { if (!series.length) return; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); series.forEach((p, i) => { const x = tx(p.t), y = yfn(p[key] || 0); if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y); }); ctx.stroke(); }
+    plot('force', yF, c.l1); plot('outside', yO, c.l2); ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('|F| N', 5, top + 4); ctx.fillText('outside m', 5, top + 16); ctx.fillText(maxF.toFixed(0), 5, top + 28); ctx.fillText('0', left - 4, h - 8); ctx.fillText('1.5', left + pw / 2 - 8, h - 8); ctx.fillText('3.0 s', left + pw - 24, h - 8); if (!series.length) ctx.fillText('Run a push to record a trial', left + pw / 2 - 76, top + ph / 2);
+  }
+  // Final presentation layer.  The world window is deliberately fixed around
+  // the initial COM so the viewer can compare trials without the camera moving.
+  const TOP_WINDOW = { xmin: -.70, xmax: .70, ymin: -.50, ymax: .50 };
+  function topTransform(w, h) {
+    const scale = Math.min(w / (TOP_WINDOW.ymax - TOP_WINDOW.ymin), h / (TOP_WINDOW.xmax - TOP_WINDOW.xmin));
+    return { scale, ox: (w - (TOP_WINDOW.ymax - TOP_WINDOW.ymin) * scale) / 2, oy: (h - (TOP_WINDOW.xmax - TOP_WINDOW.xmin) * scale) / 2 };
+  }
+  function mapTop(p, w, h) {
+    const q = topTransform(w, h);
+    // x is forward/up; positive y is patient-left/screen-left.
+    return [q.ox + (TOP_WINDOW.ymax - p[1]) * q.scale, q.oy + (TOP_WINDOW.xmax - p[0]) * q.scale];
+  }
+  function drawGrid(ctx, w, h, c) {
+    ctx.save(); ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.globalAlpha = .5;
+    for (let x = TOP_WINDOW.xmin; x <= TOP_WINDOW.xmax + 1e-6; x += .1) { const a = mapTop([x, TOP_WINDOW.ymin], w, h), b = mapTop([x, TOP_WINDOW.ymax], w, h); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    for (let y = TOP_WINDOW.ymin; y <= TOP_WINDOW.ymax + 1e-6; y += .1) { const a = mapTop([TOP_WINDOW.xmin, y], w, h), b = mapTop([TOP_WINDOW.xmax, y], w, h); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    ctx.restore();
+  }
+  function drawRect(ctx, r, w, h, fill, stroke, alpha = 1) {
+    const a = mapTop([r.xmin, r.ymin], w, h), b = mapTop([r.xmax, r.ymax], w, h);
+    ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 1;
+    ctx.fillRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); ctx.strokeRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); ctx.restore();
+  }
+  function roundedBox(ctx, x, y, width, height, radius, fill, stroke) {
+    const r = Math.min(radius, width / 2, height / 2); ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + width, y, x + width, y + height, r); ctx.arcTo(x + width, y + height, x, y + height, r); ctx.arcTo(x, y + height, x, y, r); ctx.arcTo(x, y, x + width, y, r); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill(); if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+  }
+  function labelPill(ctx, anchor, text, candidates, w, h, c, obstacles = []) {
+    ctx.save(); ctx.font = '600 10px IBM Plex Mono, monospace'; const padX = 6, metrics = typeof ctx.measureText === 'function' ? ctx.measureText(text) : null, measured = metrics && typeof metrics.width === 'number' ? metrics.width : text.length * 6, boxW = measured + padX * 2, boxH = 20;
+    let chosen = null;
+    for (const d of candidates) { const x = clamp(anchor[0] + d[0], 4, Math.max(4, w - boxW - 4)), y = clamp(anchor[1] + d[1], boxH + 4, h - 4); const box = { x, y: y - boxH, w: boxW, h: boxH }; if (!obstacles.some(o => box.x < o.x + o.w && box.x + box.w > o.x && box.y < o.y + o.h && box.y + box.h > o.y)) { chosen = box; break; } }
+    chosen = chosen || { x: clamp(anchor[0] + candidates[0][0], 4, Math.max(4, w - boxW - 4)), y: clamp(anchor[1] + candidates[0][1], boxH + 4, h - 4) - boxH };
+    const edgeX = anchor[0] < chosen.x ? chosen.x : anchor[0] > chosen.x + chosen.w ? chosen.x + chosen.w : clamp(anchor[0], chosen.x + 4, chosen.x + chosen.w - 4); const edgeY = anchor[1] < chosen.y ? chosen.y : anchor[1] > chosen.y + chosen.h ? chosen.y + chosen.h : chosen.y + chosen.h / 2;
+    ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(anchor[0], anchor[1]); ctx.lineTo(edgeX, edgeY); ctx.stroke();
+    roundedBox(ctx, chosen.x, chosen.y, chosen.w, chosen.h, 5, c.surface, c.border); ctx.fillStyle = c.fg; ctx.fillText(text, chosen.x + padX, chosen.y + 13); ctx.restore();
+    return chosen;
+  }
+  function solePath(ctx, foot, w, h) {
+    const p = v => mapTop([foot[0] + v[0], foot[1] + v[1]], w, h); const a = p([-.075, -.030]), b = p([-.075, .030]), c1 = p([-.045, .047]), d = p([.045, .055]), e = p([.112, .040]), f = p([.120, 0]), g = p([.112, -.040]), hh = p([.045, -.055]), i = p([-.045, -.047]);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.bezierCurveTo(p([-.095, -.026])[0], p([-.095, -.026])[1], p([-.095, .022])[0], p([-.095, .022])[1], b[0], b[1]); ctx.bezierCurveTo(c1[0], c1[1], p([.005, .050])[0], p([.005, .050])[1], d[0], d[1]); ctx.bezierCurveTo(e[0], e[1], f[0], f[1], f[0], f[1]); ctx.bezierCurveTo(g[0], g[1], hh[0], hh[1], hh[0], hh[1]); ctx.lineTo(i[0], i[1]); ctx.bezierCurveTo(p([-.075, -.042])[0], p([-.075, -.042])[1], a[0], a[1], a[0], a[1]); ctx.closePath();
+  }
+  function sole(ctx, foot, leg, state, w, h, c, ghost = false) {
+    ctx.save(); solePath(ctx, foot, w, h); ctx.fillStyle = ghost ? c.surface2 : (leg === state.patient.paretic ? c.patientSoft : c.surface); ctx.strokeStyle = ghost ? c.faint : (leg === state.patient.paretic ? c.patient : c.fg); ctx.lineWidth = ghost ? 1.2 : 1.8; if (ghost) ctx.setLineDash([5, 4]); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+    if (!ghost && leg === state.patient.paretic) { ctx.save(); solePath(ctx, foot, w, h); ctx.clip(); ctx.strokeStyle = c.patient; ctx.globalAlpha = .68; ctx.lineWidth = 1; const mid = mapTop(foot, w, h); for (let q = -35; q < 35; q += 8) { ctx.beginPath(); ctx.moveTo(mid[0] + q - 16, mid[1] + 28); ctx.lineTo(mid[0] + q + 16, mid[1] - 28); ctx.stroke(); } ctx.restore(); }
+    ctx.restore();
+  }
+  function arrow(ctx, a, b, color, width = 4) { const ang = Math.atan2(b[1] - a[1], b[0] - a[0]); ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] - 10 * Math.cos(ang - .5), b[1] - 10 * Math.sin(ang - .5)); ctx.lineTo(b[0] - 10 * Math.cos(ang + .5), b[1] - 10 * Math.sin(ang + .5)); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  function dashedArrow(ctx, a, b, color) { ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.setLineDash([]); const ang = Math.atan2(b[1] - a[1], b[0] - a[0]); ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] - 7 * Math.cos(ang - .55), b[1] - 7 * Math.sin(ang - .55)); ctx.lineTo(b[0] - 7 * Math.cos(ang + .55), b[1] - 7 * Math.sin(ang + .55)); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  function drawScaleBar(ctx, w, h, c) { const q = topTransform(w, h), a = mapTop([TOP_WINDOW.xmin + .08, TOP_WINDOW.ymax - .10], w, h), b = mapTop([TOP_WINDOW.xmin + .08, TOP_WINDOW.ymax - .10 - .50], w, h); ctx.save(); ctx.strokeStyle = c.muted; ctx.fillStyle = c.muted; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.moveTo(a[0], a[1] - 4); ctx.lineTo(a[0], a[1] + 4); ctx.moveTo(b[0], b[1] - 4); ctx.lineTo(b[0], b[1] + 4); ctx.stroke(); ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('0.5 m', (a[0] + b[0]) / 2 - 15, a[1] - 7); ctx.restore(); }
+  function drawTop(state) {
+    const { ctx, w, h } = fitCanvas(topCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h); drawGrid(ctx, w, h, c);
+    const support = supportFor(state), cop = copFor(state); drawRect(ctx, support, w, h, c.patientSoft, c.patient, .10); drawRect(ctx, cop, w, h, c.reachFill, c.reachLine, .08);
+    const reachLeg = state.patient.paretic, idx = reachLeg === 'L' ? 0 : 1, stance = reachLeg === 'L' ? 'R' : 'L', q = mapTop(state.feet[stance], w, h), tr = topTransform(w, h), reachX = Math.min(.27, state.patient.Lmax[idx] * .72) * tr.scale, reachY = state.patient.Lmax[idx] * tr.scale;
+    ctx.save(); ctx.globalAlpha = .14; ctx.fillStyle = c.reachFill; ctx.strokeStyle = c.reachLine; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(q[0], q[1], reachX, reachY, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = .8; ctx.stroke(); ctx.restore();
+    const trail = state.trail || []; for (let i = 1; i < trail.length; i++) { const a = mapTop(trail[i - 1].x, w, h), b = mapTop(trail[i].x, w, h), level = trail[i].level; ctx.save(); ctx.strokeStyle = level === 2 ? c.l2 : level === 1 ? c.l1 : c.l0; ctx.globalAlpha = .92; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.restore(); }
+    ctx.save(); ctx.strokeStyle = c.faint; ctx.globalAlpha = .55; ctx.lineWidth = 1.3; ctx.setLineDash([2, 5]); ctx.beginPath(); trail.forEach((p, i) => { const z = mapTop(p.xi, w, h); if (!i) ctx.moveTo(z[0], z[1]); else ctx.lineTo(z[0], z[1]); }); ctx.stroke(); ctx.restore();
+    const initial = { L: [0, .10], R: [0, -.10] }, moved = ['L', 'R'].map(leg => ({ leg, d: norm(sub(state.feet[leg], initial[leg])) })).sort((a, b) => b.d - a.d)[0];
+    if (state.steps > 0 && moved && moved.d > .015) { const ghost = mapTop(initial[moved.leg], w, h), landed = mapTop(state.feet[moved.leg], w, h); sole(ctx, initial[moved.leg], moved.leg, state, w, h, c, true); dashedArrow(ctx, ghost, landed, c.faint); }
+    ['L', 'R'].forEach(leg => sole(ctx, state.feet[leg], leg, state, w, h, c));
+    const footBoxes = ['L', 'R'].map(leg => { const p = mapTop(state.feet[leg], w, h); return { x: p[0] - 32, y: p[1] - 32, w: 64, h: 64 }; });
+    const weakPoint = mapTop(state.feet[state.patient.paretic], w, h); labelPill(ctx, weakPoint, 'weak', [[-46, 18], [-46, -26], [24, 18]], w, h, c, footBoxes);
+    const com = mapTop(state.x, w, h), xi = mapTop(state.xi, w, h); ctx.fillStyle = c.patient; ctx.beginPath(); ctx.arc(com[0], com[1], 5, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(xi[0], xi[1], 11, 0, Math.PI * 2); ctx.stroke();
+    labelPill(ctx, com, 'COM', [[22, -30], [24, 28], [-54, -30]], w, h, c, footBoxes); labelPill(ctx, xi, 'must step here', [[24, 28], [24, -30], [-92, 28]], w, h, c, footBoxes);
+    let visualForce = state.force, visualLevel = state.level; if (norm(visualForce) <= 1 && trail.length) for (let i = trail.length - 1; i >= 0; i--) if (norm(trail[i].f) > 1) { visualForce = trail[i].f; visualLevel = trail[i].level; break; } const fn = norm(visualForce); if (fn > 1) arrow(ctx, com, mapTop(add(state.x, mul(unit(visualForce), .16 + .12 * Math.min(fn / F_MAX, 1))), w, h), visualLevel === 2 ? c.l2 : c.l1, 5);
+    drawScaleBar(ctx, w, h, c);
+  }
+  function drawSide(state) {
+    const { ctx, w, h } = fitCanvas(sideCanvas), c = cssTokens(); ctx.clearRect(0, 0, w, h); ctx.fillStyle = c.surface2; ctx.fillRect(0, 0, w, h);
+    const floor = h * .87, walkerL = w * .13, walkerR = w * .87, beamY = h * .20, braceY = h * .56, pelvisY = h * .58, kneeY = h * .73, footY = floor - 5, mid = w * .5;
+    ctx.save(); ctx.strokeStyle = c.borderStrong; ctx.lineWidth = 2; ctx.lineCap = 'square'; ctx.beginPath(); ctx.moveTo(walkerL, floor); ctx.lineTo(walkerL, beamY); ctx.lineTo(walkerR, beamY); ctx.lineTo(walkerR, floor); ctx.moveTo(walkerL, floor); ctx.lineTo(walkerR, floor); ctx.stroke(); ctx.strokeStyle = c.border; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(walkerL, braceY); ctx.lineTo(walkerR, braceY); ctx.stroke(); ctx.restore();
+    const maxLevel = (state.trail || []).reduce((level, p) => Math.max(level, p.level || 0), state.level || 0), brace = state.catchEngaged || maxLevel === 2 ? c.l2 : maxLevel === 1 ? c.l1 : c.l0, lateral = clamp(state.x[1], -.35, .35), pelvisX = mid - lateral / .7 * w * .22, lean = -lateral / .35 * w * .07, shoulderX = pelvisX + lean, neckY = h * .36, headY = h * .29, hipY = pelvisY;
+    ctx.strokeStyle = brace; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(walkerL + 8, braceY); ctx.lineTo(walkerR - 8, braceY); ctx.stroke();
+    const harnessTaut = state.catchEngaged || state.level === 2; ctx.save(); ctx.strokeStyle = harnessTaut ? c.l2 : c.faint; ctx.lineWidth = harnessTaut ? 2.5 : 1.2; ctx.setLineDash(harnessTaut ? [] : [4, 4]); ctx.beginPath(); ctx.moveTo(w * .37, beamY); ctx.lineTo(pelvisX - 10, pelvisY); ctx.moveTo(w * .63, beamY); ctx.lineTo(pelvisX + 10, pelvisY); ctx.stroke(); ctx.restore();
+    ctx.strokeStyle = c.patient; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(pelvisX, hipY - 4); ctx.lineTo(shoulderX, neckY); ctx.stroke(); ctx.strokeStyle = c.fg; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(shoulderX, neckY); ctx.lineTo(shoulderX, neckY - 8); ctx.stroke(); ctx.beginPath(); ctx.arc(shoulderX, headY, Math.max(8, Math.min(13, h * .045)), 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(pelvisX - 17, pelvisY); ctx.lineTo(pelvisX + 17, pelvisY); ctx.stroke();
+    ['L', 'R'].forEach(leg => { const fx = mid - clamp(state.feet[leg][1], -.45, .45) / .7 * w * .22, hipX = pelvisX + (leg === 'L' ? -8 : 8), kx = (hipX + fx) / 2, hip = pelvisY + 5; ctx.strokeStyle = leg === state.patient.paretic ? c.patient : c.fg; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(hipX, hip); ctx.lineTo(kx, kneeY); ctx.lineTo(fx, footY); ctx.stroke(); ctx.fillStyle = leg === state.patient.paretic ? c.patientSoft : c.surface; ctx.strokeStyle = ctx.strokeStyle; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(fx - 10, footY); ctx.lineTo(fx + 10, footY); ctx.lineTo(fx + 12, footY + 4); ctx.lineTo(fx - 9, footY + 4); ctx.closePath(); ctx.fill(); ctx.stroke(); });
+    ctx.fillStyle = c.muted; ctx.font = '10px IBM Plex Mono, monospace'; ctx.fillText('walker', 7, beamY - 7); ctx.fillText('brace', 7, braceY - 7); ctx.fillText('floor', 7, floor + 14); if (norm(state.force) > 1) arrow(ctx, [pelvisX, pelvisY], [pelvisX - clamp(state.force[1] / F_MAX, -.25, .25) * w, pelvisY], state.level === 2 ? c.l2 : c.l1, 3);
+  }
+
+  function drawAll(state) { if (!state) return; drawTop(state); drawSide(state); drawChart(lastTrial || state); const l = levelLabels[state.level] || levelLabels[0]; els.level.textContent = l; els.level.className = 'badge l' + state.level; els.force.textContent = norm(state.force).toFixed(0) + ' N'; els.time.textContent = Math.min(state.t, TRIAL_LENGTH).toFixed(2) + ' s'; els.steps.textContent = state.steps; if (state.done) showOutcome(els.outcome, state.outcome); }
+
+  function updateLabels() { els.severityValue.textContent = Number(els.severity.value).toFixed(2); els.magnitudeValue.textContent = Number(els.magnitude.value).toFixed(2) + ' m/s'; els.directionValue.textContent = Number(els.direction.value) + '°'; els.thresholdValue.textContent = Number(els.threshold.value).toFixed(2) + ' m'; els.impedanceValue.textContent = Number(els.impedance.value) + ' N/m'; els.marginValue.textContent = Number(els.margin.value).toFixed(2) + ' m'; const id = els.controller.value; document.getElementById('threshold-control').classList.toggle('enabled', id === 'B1' || id === 'B2'); document.getElementById('impedance-control').classList.toggle('enabled', id === 'B2'); document.getElementById('margin-control').classList.toggle('enabled', id === 'CP'); }
+  function updateLabels() { els.severityValue.textContent = Number(els.severity.value).toFixed(2); els.magnitudeValue.textContent = Number(els.magnitude.value).toFixed(2) + ' m/s'; els.directionValue.textContent = Number(els.direction.value) + '°'; els.thresholdValue.textContent = Number(els.threshold.value).toFixed(2) + ' m'; els.impedanceValue.textContent = Number(els.impedance.value) + ' N/m'; els.marginValue.textContent = Number(els.margin.value).toFixed(2) + ' m'; const id = els.controller.value, tl = document.getElementById('threshold-control'); tl.classList.toggle('enabled', id === 'B1' || id === 'B1-XCoM' || id === 'B2'); const label = tl.querySelector ? tl.querySelector('label') : null; if (label) label.firstChild.nodeValue = id === 'B1-XCoM' ? 'Capture-point threshold ' : 'B1 threshold '; document.getElementById('impedance-control').classList.toggle('enabled', id === 'B2'); document.getElementById('margin-control').classList.toggle('enabled', id === 'CP' || id === 'CP-pop'); }
+  function random(seed) { let x = seed >>> 0; return () => { x = (1664525 * x + 1013904223) >>> 0; return x / 4294967296; }; }
+  function runMonteCarlo() { cancelAnimationFrame(animation); const rng = random(5412), counts = { SELF: 0, ASSISTED: 0, CAUGHT: 0, FALL: 0 }, ctrl = readCtrl(); for (let i = 0; i < 200; i++) { const severity = rng(), paretic = rng() < .5 ? 'L' : 'R', mag = .2 + .7 * rng(), dir = Math.PI * 2 * rng(); const result = runTrial({ severity, paretic, push: [mag * Math.cos(dir), mag * Math.sin(dir)], ctrl }); counts[result.outcome] = (counts[result.outcome] || 0) + 1; } const order = ['SELF','ASSISTED','CAUGHT','FALL']; els.mc.innerHTML = '<strong>200-push snapshot:</strong> ' + order.map(k => k + ' ' + counts[k]).join(' · '); els.state.textContent = 'MONTE CARLO'; }
+
+  function updateLabels() { els.severityValue.textContent = Number(els.severity.value).toFixed(2); els.magnitudeValue.textContent = Number(els.magnitude.value).toFixed(2) + ' m/s'; els.directionValue.textContent = Number(els.direction.value) + '°'; els.thresholdValue.textContent = Number(els.threshold.value).toFixed(2) + ' m'; els.impedanceValue.textContent = Number(els.impedance.value) + ' N/m'; els.marginValue.textContent = Number(els.margin.value).toFixed(2) + ' m'; const id = els.controller.value; document.getElementById('threshold-control').classList.toggle('enabled', id === 'B1' || id === 'B1-XCoM'); document.getElementById('impedance-control').classList.toggle('enabled', id === 'B2'); document.getElementById('margin-control').classList.toggle('enabled', id === 'CP'); }
+  function cleanUiText() { if (!document.querySelector) return; const label = document.querySelector('#threshold-control label'); if (label && label.firstChild) label.firstChild.nodeValue = 'Threshold '; const outside = document.querySelector('.legend .swatch.outside'); if (outside && outside.parentNode && outside.parentNode.lastChild) outside.parentNode.lastChild.nodeValue = 'capture point outside support (m)'; }
+  function compareAll() {
+    cancelAnimationFrame(animation); const base = readParams(), configs = [
+      ['No robot', { id: 'B0' }], ['Today: threshold lock', { id: 'B1', threshold: .05 }], ['Capture-point threshold', { id: 'B1-XCoM', threshold: .08 }], ['Always-on spring', { id: 'B2', threshold: .14, k: 200 }], ['CatchPoint', { id: 'CP', margin: .03, dc: true }]
+    ];
+    els.compare.innerHTML = configs.map(([name, ctrl]) => { const r = runTrial({ ...base, ctrl, render: false }); return '<article class="compare-cell"><strong>' + name + '</strong><span class="outcome ' + outcomeClass(r.outcome) + '">' + (outcomeLabels[r.outcome] || r.outcome) + '</span><small>impulse ' + r.impulse.toFixed(1) + ' N·s<br>' + r.n_steps + ' step' + (r.n_steps === 1 ? '' : 's') + '</small></article>'; }).join('');
+    els.state.textContent = 'COMPARE';
+  }
+  function runMonteCarlo() {
+    cancelAnimationFrame(animation); const rng = random(5412), counts = { SELF: 0, ASSISTED: 0, CAUGHT: 0, FALL: 0 }, ctrl = readCtrl();
+    for (let i = 0; i < 200; i++) { const severity = rng(), paretic = rng() < .5 ? 'L' : 'R', mag = .2 + .7 * rng(), dir = Math.PI * 2 * rng(); const result = runTrial({ severity, paretic, push: [mag * Math.cos(dir), mag * Math.sin(dir)], ctrl }); counts[result.outcome] = (counts[result.outcome] || 0) + 1; }
+    const rows = [['SELF', 'Recovered alone', 'self'], ['ASSISTED', 'Recovered with a nudge', 'assisted'], ['CAUGHT', 'Harness catch', 'caught'], ['FALL', 'Fall', 'fall']]; const total = 200;
+    els.mc.innerHTML = '<strong>200-push snapshot</strong><div class="stacked-bar" aria-label="200 random pushes: ' + rows.map(r => r[1] + ' ' + counts[r[0]]).join(', ') + '">' + rows.map(r => '<span class="' + r[2] + '" style="width:' + (counts[r[0]] / total * 100).toFixed(2) + '%"></span>').join('') + '</div><div class="mc-key">' + rows.map(r => '<span><b>' + counts[r[0]] + '</b> ' + r[1] + '</span>').join('') + '</div>';
+    els.state.textContent = 'MONTE CARLO';
+  }
+  [els.severity, els.magnitude, els.direction, els.threshold, els.impedance, els.margin].forEach(input => input.addEventListener('input', updateLabels));
+  els.controller.addEventListener('change', updateLabels); els.push.addEventListener('click', runCurrent); els.compareButton.addEventListener('click', compareAll); els.monteCarlo.addEventListener('click', runMonteCarlo);
+  if (document.querySelectorAll) document.querySelectorAll('.preset').forEach(button => button.addEventListener('click', () => applyPreset(button.dataset.preset)));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', () => current && drawAll(current)); else mq.addListener(() => current && drawAll(current));
+  window.addEventListener('resize', () => current && drawAll(current));
+  updateLabels();
+  // Default showcase is Bigger push; a preset hash is useful for repeatable screenshots.
+  const hashPreset = ({ '#preset-small': 'small', '#preset-bigger': 'bigger', '#preset-big': 'too-big', '#preset-too-big': 'too-big' })[window.location.hash];
+  els.controller.value = 'CP'; els.severity.value = '.6'; els.paretic.value = 'L'; els.magnitude.value = '.52'; els.direction.value = '90'; els.threshold.value = '.05'; els.impedance.value = '200'; updateLabels(); cleanUiText();
+  if (hashPreset) applyPreset(hashPreset, true); else { document.querySelectorAll('.preset').forEach(b => b.classList.toggle('active', b.dataset.preset === 'bigger')); current = runTrial(readParams()); lastTrial = current; els.state.textContent = 'SHOWCASE'; drawAll(current); }
+  function runGolden(cases) {
+    return cases.map(c => { const r = runTrial({ patient: c.patient, identified: c.identified, push: c.push, ctrl: c.controller }); return { id: c.id, outcome: r.outcome, n_steps: r.n_steps, impulse: r.impulse, peak_force: r.peak_force }; });
+  }
+  window.catchpoint = { stepTrial, runTrial, patientFrom, runGolden };
+})();
+</script>
+
+</body>
+</html>

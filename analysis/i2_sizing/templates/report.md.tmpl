@@ -1,0 +1,282 @@
+# I2 sizing — walker-mounted cable pelvic interface (slack / nudge / arrest)
+
+Status: preliminary statics + simulation feasibility analysis, 22 Oct 2026. Not human-tested, not
+hardware-tested, not safety-certified; it supports no fall-arrest claim.
+
+Rounding policy (generated file: do not edit by hand; see `make_report.py`, `publish.py`, `templates/`). Every number below is
+filled from the JSON in `data/` by `publish.py`, so a published bound is never better than its source value: loads, tensions,
+torques, required ratings, resultants, maxima, upper CI bounds and required mass are rounded UP; capacities, safety factors,
+friction capacity, slide limits, envelopes, minima, coverage percentages and lower CI bounds are rounded DOWN; a confidence
+interval has its lower bound DOWN and its upper bound UP at 1 decimal. Only descriptive statistics of the simulated sample (the
+"median" and "p95" figures) and nominal geometry are rounded to nearest, and they are always labelled as such. Model inputs
+and assumptions (for example the 60 kg baseline walker, 15 kN/m cable stiffness, 85 kg patient) are stated, not computed.
+Interpolated quantities are linear between the two adjacent tabulated JSON points.
+
+D3 geometry has ONE source of truth: `data/d3_contract.json`. `sizing.py`, `run_analysis.py`, `slip_analysis.py` and
+`cad/build_cad_d3.py` all read it; `test_d3_consistency.py` checks the generated CAD parts against it (1 mm).
+
+Reproduce: `.venv/Scripts/python analysis/i2_sizing/instrument_sim.py [tau_lock]` (0.28, 0.15, 0.08),
+then `run_analysis.py`, `slip_analysis.py`, `fbd.py`, `make_report.py` (regenerates this file, `results/sizing_D3_summary.md` and the
+derived fields of the contract), and `cad/build_cad_d3.py` for the CAD.
+Tests: `pytest analysis/i2_sizing` (`test_sizing.py`, `test_d3_consistency.py`, `test_publish.py`).
+
+## 1. Bottom line
+1. The {f491} N in the concept review is `Dc·v` of the SPEC catch spring-damper (`F = -Kc(x-xlock) - Dc v`,
+   Dc = 800 N·s/m), not a physical arrest requirement. The force needed to stop the simulated patients within
+   0.25 m is much lower (§3): median {desc:R/loads/280/Freq/median:0} N, p95 {desc:R/loads/280/Freq/p95:0} N (descriptive statistics of the sample, nearest).
+2. As proposed (60 kg walker, horizontal cables at pelvis height, no outriggers) I2 tips statically at
+   {cap:R/envelope_sf1/D0 as proposed/min:0} N (SF 1) and has SF {d0_sf_491} at {f491} N.
+3. Feasible only with five changes together: a brake that slips at a set force (force limiter);
+   mixed-height anchors (corners high on the {geo:K/corner_anchors/0/2:2} m columns, the rest at pelvis height); an {int:K/mass} kg walker
+   with ~{ballast} kg low ballast (CG z {geo:K/cg/2:2} m); outrigger feet deployed on catch (+{geo:K/outrigger_ex:2} m all round); the BWS
+   anchor above the pelvis (x = {geo:K/bws_anchor/0:2} m), not on the rear beam.
+4. Force wording (used everywhere): the group-tuned passive slip brakes give ≥ {int:K/F_lim} N along the fall direction
+   ({cap:S/group_tuned/Fpar_min:0} N minimum over {int:S/group_tuned/n_directions} directions) and ≤ {int:K/resultant_bound_all_slip} N ({req:S/group_tuned/Fh_max:1} N) horizontal resultant (the perpendicular component is up to {req:S/group_tuned/perp_max:0} N;
+   the resultant deviates up to {req:S/group_tuned/ang_max:0} deg from the fall direction). The resultant stays below the {int:K/envelope_SF1p5} N static envelope
+   of D3 (SF {desc:R/params/SF:1}; SF 1.0 to {cap:R/envelope_sf1/D3 recommended/min:0} N). Tip SF ≥ {cap:S/group_tuned/sf_min:2} and sliding SF ≥ {cap:S/group_tuned/sf_slide_min:2} at the full slip resultant (friction
+   capacity ≥ {fcap_min} N at μ = {geo:K/mu_pad:1} in the {int:K/F_lim} N cases). Pelvis lift ≤ {req:S/group_tuned/lift_max:0} N under passive slip (cap {desc:R/params/XI_ARREST:1} BW = {cap:R/params/CAP_ARREST:0} N for 60 kg).
+5. Denominator, stated explicitly (HEADLINE, passive-slip metric): among the {ncaught} trials that the CP m = 0.03
+   simulation ({ntot} trials, lock {lock28} s) already ended as CAUGHT, the group-tuned passive slip brakes on D3 (corner {int:K/T_slip/corner},
+   lateral {int:K/T_slip/lateral}, centre {int:K/T_slip/centre} N; for each trial's fall direction they deliver {cap:R/dyn/passive/280/Fpar_min:1}-{req:R/dyn/passive/280/Fpar/max:1} N along the fall, median {desc:R/dyn/passive/280/Fpar/median:0} N (descriptive), plus
+   up to {req:S/group_tuned/perp_max:0} N perpendicular) arrest {covp:280} within 0.25 m (1-D stop with the
+   along-fall force), with static tip SF >= {desc:R/dyn/passive_params/SF:1} and no sliding > {slide_tol_cm} cm under the FULL resultant, and no dynamic tip.
+   Comparison, the earlier metric (fixed {int:K/F_lim} N along the fall, QP-distributed tensions): {covf:280}. The other {never}/{ntot} trials never engage the catch, so I2 does not change them. This is NOT 99 % of
+   all trials, not a population guarantee, and not a fall reduction: the {falls0} baseline falls ({falls0_pct} %) are unchanged
+   and the {nfail} non-arrested caught trials are potential additional falls, {falls0} + {nfail} = {worst_falls}/{ntot} = {worst_pct} % at worst
+   (counts, under the simplifications of section 2.6). An empirical, conditional result of one seeded simulation.
+6. Why a {int:K/F_lim} N along-fall target and not the {int:K/envelope_SF1p5} N static (SF {desc:R/params/SF:1}) envelope: coverage plateaus above ~{int:K/F_lim} N
+   (fixed-force metric: {int:R/dyn/curves/280|D3 recommended/F_lim=300/k}/{ncaught} at {int:K/F_lim} N, {int:R/dyn/curves/280|D3 recommended/F_lim=400/k}/{ncaught} at 400 N); the ~{margin_420} N between the ≤ {int:K/resultant_bound_all_slip} N passive resultant and {int:K/envelope_SF1p5} N,
+   and the headroom of the envelope itself, are held as margin for (a) the spread of the per-spool slip resultant
+   (section 4b), (b) friction uncertainty (D3 slides at {cap:R/slide_limit/mu=0.3/F_slide:0} N if the pads give mu = 0.3), (c) dynamic overshoot and
+   incomplete outrigger deployment (without outriggers the envelope is {s_noout} N). Lock-delay sensitivity, D3 caught
+   trials, passive-slip metric (fixed {int:K/F_lim} N metric in brackets): {lock28} s {covps:280} ({covfs:280});
+   0.15 s {covps:150} ({covfs:150}); 0.08 s {covps:080} ({covfs:080}) (a faster lock means a
+   faster COM at engagement and a higher load).
+7. Timing: with the SPEC {lock28} s lock the catch engages at {lock28} s after decision and the COM stops at
+   ≈{t_stop_med_abs} s (median, descriptive; p95 {t_stop_p95_abs} s, rounded up; passive-slip model), inside the 0.3–0.5 s window. A faster lock (assumed ~0.14 s) is
+   plausible but undemonstrated, and it raises the load (§3).
+
+## 2. Model and assumptions
+Frame per SPEC §4: x forward, y left, z up. D3 geometry is read from `data/d3_contract.json` (the CAD reads the
+same file): footprint {geo:K/footprint_xy/0:2} × {geo:K/footprint_xy/1:2} m; wheel contacts inset by the wheel radius {geo:K/wheel_radius:3} (x = {geo:K/wheels_x/0:3}/{geo:K/wheels_x/1:3}, y = ±{geo:K/wheels_y:3}).
+Columns {geo:K/corner_anchors/0/2:2} m at x = {geo:K/corner_anchors/0/0:2}/{geo:K/corner_anchors/2/0:2}, y = ±{geo:K/corner_anchors/0/1:2}. Nominal pelvis P = ({geo:K/pelvis/0:2}, 0, {geo:K/pelvis/2:2}); belt (D3) half-depth {geo:K/belt/hd:2},
+half-width {geo:K/belt/hw:3} (the CAD value, needed for the mannequin to fit; the SPEC value 0.11/0.19 is kept only for D0-D2).
+Each anchor is the cable exit point: the CAD places every spool housing so that its fairlead tip lies exactly on the
+contract anchor (checked at 1 mm).
+
+2.1 Cables: u_i from belt attachment (ray from the pelvis centre toward the anchor, intersected with the belt ellipse)
+to anchor; pelvis force F_p = Σ T_i u_i; frame force at anchor −T_i u_i.
+QP: min Σ T² s.t. Σ T_i u_i,xy = F_des, T_min = 2 N ≤ T ≤ T_max (1500 N arrest, 250 N nudge); solved by
+bounded least squares + null-space polish (residual < 1e-9 N). Pelvis lift capped ({desc:R/params/XI_NUDGE:2} BW nudge,
+{desc:R/params/XI_ARREST:1} BW arrest, lightest patient 60 kg). Layouts: 4 corner anchors; 6 adds lateral ({geo:K/lateral_anchors/0/0:2}, ±{geo:K/lateral_anchors/0/1:2});
+8 adds rear-centre and front-centre; optional overhead BWS cable. Cables only pull → forces toward the
+open front of the U need front anchors (open routing question).
+
+2.2 Walker statics: weight at CG, cable reactions at anchors, ground reactions at 4 wheels (+4 outrigger
+feet when deployed). Tipping when the ground CoP leaves the support polygon; tip SF = multiple of cable
+loads that puts the CoP on an edge; sliding SF = μ(N0 + λN1)/(λ|H|). D0/D1 walker 60 kg, CG
+(0.40, 0, 0.45); μ = {geo:K/mu_pad:1} assumed. Patient weight reaches the walker only through vertical cable components
+(horizontal cables at pelvis height add zero wheel load — tested).
+
+2.3 Arrest dynamics (1-D along the force): m s'' = m ω² s − F (ankle CoP at support edge, optimistic);
+cable lumped stiffness 15 kN/m, damping ratio 0.2; brake slips at F_lim; walker Coulomb friction.
+Passive-slip coverage (headline): for each caught trial, F_lim = the along-fall component of the force the group-tuned
+passive brakes produce for that trial's fall direction (cables whose length grows along the motion slip at their own
+tension, BWS slack; directions binned to {desc:R/dyn/passive_params/dir_res_deg:1} deg); the walker's friction load uses the full horizontal resultant
+(along + perpendicular) and the downward cable component; the static tip check uses the statics of the actual slip
+tensions (SF >= {desc:R/dyn/passive_params/SF:1} at the peak force); the dynamic tip check uses their overturning moment about the tip edge.
+The fixed-force metric ({int:K/F_lim} N along the fall, QP tensions) is kept for comparison.
+Success = peak s ≤ 0.25 m (SPEC fall criterion). Minimum constant force to stop:
+F ≥ m ω(ω s0 + v); if s0 + v/ω > 0.25 m, F = m(ω²(0.25² − s0²) + v²) / (2(0.25 − s0)).
+
+2.4 Dynamic tip check: rigid body rotating about the tipping edge under the arrest force history (indicative).
+
+2.5 Spool/brake: brake torque = 1.5 × T × r_s, brake on the spool side of the gearbox. Nudge servo 12:1,
+η = 0.9, rotor inertia 5e-6 kg·m² (assumed, not a part selection).
+
+2.6 Simplifications that flatter the device: ankle CoP at support edge, fixed force direction, rigid frame,
+nominal pelvis position, LIP patient; the perpendicular component of the passive slip force is applied to the walker
+but not fed back into the 1-D patient dynamics. Stepping after engagement ignored (works against the device).
+
+## 3. Arrest load cases from the simulation
+`instrument_sim.py` wraps `lip_step` and `dist_to` with pass-through loggers (sim unchanged; asserts identical
+outcomes and peak catch force {peak491_2} N). CP m = 0.03, {ntot} trials, {ncaught} caught, lock {lock28} s (fig1).
+The median and p95 columns are descriptive statistics (nearest); the max column is rounded up.
+
+| At engagement ({ncaught} trials) | median | p95 | max |
+|---|---|---|---|
+| COM speed away from support [m/s] | {desc:R/loads/280/vout/median:2} | {desc:R/loads/280/vout/p95:2} | {req:R/loads/280/vout/max:2} |
+| COM distance from support [cm] | {desc:R/loads/280/s0/median*100:1} | {desc:R/loads/280/s0/p95*100:1} | {req:R/loads/280/s0/max*100:1} |
+| COM kinetic energy [J] | {desc:R/loads/280/ke/median:2} | {desc:R/loads/280/ke/p95:2} | {req:R/loads/280/ke/max:1} |
+| Sim catch-force peak [N] | {desc:R/loads/280/F_peak/median:0} | {desc:R/loads/280/F_peak/p95:0} | {req:R/loads/280/F_peak/max:1} |
+| Hold force at t = 3 s [N] | {desc:R/loads/280/F_hold/median:0} | {desc:R/loads/280/F_hold/p95:0} | {req:R/loads/280/F_hold/max:0} |
+| Sim catch impulse, first 0.3 s [N·s] | {desc:L28/stats/imp_300/median:1} | {desc:L28/stats/imp_300/p95:1} | {req:L28/stats/imp_300/max:1} |
+| Minimum constant force to stop within 0.25 m [N] | {desc:R/loads/280/Freq/median:0} | {desc:R/loads/280/Freq/p95:0} | {n_gt600} trials > 600 |
+
+Share of the {ncaught} caught trials needing ≤ 150 / 200 / 300 / 400 N (rounded down): {cap:R/loads/280/Freq_frac_le/150*100:1} / {cap:R/loads/280/Freq_frac_le/200*100:1} / {cap:R/loads/280/Freq_frac_le/300*100:1} / {cap:R/loads/280/Freq_frac_le/400*100:1} %.
+Lock-delay sensitivity (τ_lock 0.15 / 0.08 s): median COM speed at engagement {desc:R/loads/150/vout/median:2} / {desc:R/loads/080/vout/median:2} m/s (descriptive); p95 required
+force {desc:R/loads/150/Freq/p95:0} / {desc:R/loads/080/Freq/p95:0} N (descriptive); share ≤ 300 N {cap:R/loads/150/Freq_frac_le/300*100:1} / {cap:R/loads/080/Freq_frac_le/300*100:1} % (rounded down).
+
+## 4. Designs and results (lift cap {cap:R/params/CAP_ARREST:0} N; SF = static tip safety factor, worst of {ndir_env} directions)
+
+| Design | Walker | Cables | F allowed (SF {desc:R/params/SF:1}) | SF 1.0 | Slide limit (μ {geo:K/mu_pad:1}) |
+|---|---|---|---|---|---|
+| D0 as proposed | 60 kg, CG z 0.45 | 6 at z = 0.95 | {cap:R/envelope/D0 as proposed/min:0} N | {cap:R/envelope_sf1/D0 as proposed/min:0} N | {cap:R/slide/D0 as proposed/F_slide:0} N |
+| D1 high anchors | 60 kg | 8: corners 1.20, rest 0.95 | {cap:R/envelope/D1 high anchors/min:0} N | {cap:R/envelope_sf1/D1 high anchors/min:0} N | {cap:R/slide/D1 high anchors/F_slide:0} N |
+| D2 + ballast | 100 kg, CG z 0.35 | as D1 | {cap:R/envelope/D2 + ballast/min:0} N | {cap:R/envelope_sf1/D2 + ballast/min:0} N | {cap:R/slide/D2 + ballast/F_slide:0} N |
+| **D3 recommended** | {int:K/mass} kg, CG ({geo:K/cg/0:2}, {geo:K/cg/1:0}, {geo:K/cg/2:2}), outriggers +{geo:K/outrigger_ex:2} m | D1 + BWS | **{cap:R/envelope/D3 recommended/min:0} N** | **{cap:R/envelope_sf1/D3 recommended/min:0} N** | {cap:R/slide/D3 recommended/F_slide:0} N |
+
+Walker mass vs base half-width (fig3; mass = required mass, rounded up; values between tabulated half-widths are linear
+interpolations between the two adjacent JSON points, an upper bound for this convex curve): horizontal cables, {f491} N, SF 1 → ≈{m_h_a} kg at {hw_a} m, {m_h_b} kg at
+{hw_b} m (reproduces the review). Mixed-height cables, {int:K/F_lim} N, SF {desc:R/params/SF:1} → ≈{m_m_a} kg at {hw_a} m, ≈{m_m_b} kg at
+{hw_b} m; a 60 kg walker needs ≈{hw60} m half-width (inverse interpolation, rounded up) → outriggers are the practical lever.
+
+D3 arrest at {int:K/F_lim} N (QP tension distribution, controller-set; the passive-slip case is section 4b; tensions, lifts and T_max rounded up, SF and friction capacity rounded down):
+
+| Fall | Tensions [N] | T_max | Lift | Tip SF (edge) | Friction needed / cap |
+|---|---|---|---|---|---|
+| forward | rearL {req:R/arrest_rows/0/T/rearL:0}, rearR {req:R/arrest_rows/0/T/rearR:0}, rearC {req:R/arrest_rows/0/T/rearC:0} | {req:R/arrest_rows/0/Tmax:0} | {req:R/arrest_rows/0/lift:0} N | {cap:R/arrest_rows/0/sf_tip:2} (front) | {req:R/arrest_rows/0/H:0} / {fcap0} N |
+| backward | frontL {req:R/arrest_rows/1/T/frontL:0}, frontR {req:R/arrest_rows/1/T/frontR:0}, frontC {req:R/arrest_rows/1/T/frontC:0}, latL/R {req:R/arrest_rows/1/T/latL:0} | {req:R/arrest_rows/1/Tmax:0} | {req:R/arrest_rows/1/lift:0} N | {cap:R/arrest_rows/1/sf_tip:2} (rear) | {req:R/arrest_rows/1/H:0} / {fcap1} N |
+| left | rearR {req:R/arrest_rows/2/T/rearR:0}, frontR {req:R/arrest_rows/2/T/frontR:0}, latR {req:R/arrest_rows/2/T/latR:0}, rearC {req:R/arrest_rows/2/T/rearC:0} | {req:R/arrest_rows/2/Tmax:0} | {req:R/arrest_rows/2/lift:0} N | {cap:R/arrest_rows/2/sf_tip:2} (left) | {req:R/arrest_rows/2/H:0} / {fcap2} N |
+| right | mirror of left | {req:R/arrest_rows/3/Tmax:0} | {req:R/arrest_rows/3/lift:0} N | {cap:R/arrest_rows/3/sf_tip:2} | {req:R/arrest_rows/3/H:0} / {fcap3} N |
+
+Nudge {nudge_n} N, {ndir_nudge} directions: all feasible; T_max {nudge_tmax} N, lift ≤ {nudge_lift} N, tip SF ≥ {nudge_sf}, sliding SF ≥ {nudge_sfs}.
+Brake at r_s = {geo:K/spool_radius*1000:0} mm: {tau_brake} N·m (1.5 × the {req:R/Tmax_arrest_worst:1} N worst QP tension; ≈{tau_brake_env} N·m scaled to {int:K/envelope_SF1p5} N). Nudge servo: {req:R/spool_brake/r_s=0.025/tau_spool_nudge:2} N·m at
+spool, {req:R/spool_brake/r_s=0.025/tau_motor:2} N·m motor, {req:R/spool_brake/r_s=0.025/m_reflected:2} kg reflected mass. Slip-brake energy (passive slip, arrested trials) ≤ {energy_max} J over the three
+lock delays ({energy_28} J at {lock28} s). Timing (fig5, passive slip): nudge force at 0.12 s; lock at {lock28} s; COM stopped
+{desc:R/dyn/passive/280/t_stop/median:3} s after engagement (median; p95 {desc:R/dyn/passive/280/t_stop/p95:2} s; descriptive). FBDs: fig6.
+
+### 4b. Per-spool slip versus resultant force (data/slip.json, figures/fig7_slip_resultant.png)
+Brake torque must be sized from the resultant the spools can deliver, not from one cable. With independent slip,
+cable i carries up to T_slip,i whenever the pelvis moves away from its anchor (cable pays out). For D3 at the
+nominal pelvis position (BWS cable kept slack in horizontal arrest), over {int:S/group_tuned/n_directions} patient-motion directions (1 deg); resultants and lifts are maxima (rounded up),
+along-arrest forces and tip SF are minima (rounded down):
+
+| Option | Along-arrest force (min) | Horizontal resultant (max) | Tip SF (min) | Pelvis lift (max) |
+|---|---|---|---|---|
+| Uniform T_slip = 150 N, passive | {cap:S/uniform/150/Fpar_min:0} N | {req:S/uniform/150/Fh_max:0} N | {cap:S/uniform/150/sf_min:2} | {req:S/uniform/150/lift_max:0} N |
+| Uniform T_slip = 190 N, passive | {cap:S/uniform/190/Fpar_min:0} N | {req:S/uniform/190/Fh_max:0} N (> {int:K/envelope_SF1p5}) | {cap:S/uniform/190/sf_min:2} | {req:S/uniform/190/lift_max:0} N |
+| **Group-tuned passive: corner {int:K/T_slip/corner}, lateral {int:K/T_slip/lateral}, centre {int:K/T_slip/centre} N** | **{cap:S/group_tuned/Fpar_min:0} N** | **{req:S/group_tuned/Fh_max:0} N** | {cap:S/group_tuned/sf_min:2} | {req:S/group_tuned/lift_max:0} N |
+| Controller-set thresholds (QP at {int:K/F_lim} N), exact direction | {cap:S/controller_qp/0/Fpar_min:0} N | {req:S/controller_qp/0/Fh_max:0} N | {cap:S/controller_qp/0/sf_min:2} | {req:S/controller_qp/0/lift_max:0} N |
+| same, direction-estimate error 15 / 30 / 45 deg | {cap:S/controller_qp/15/Fpar_min:0} / {cap:S/controller_qp/30/Fpar_min:0} / {cap:S/controller_qp/45/Fpar_min:0} N | {req:S/controller_qp/15/Fh_max:0} / {req:S/controller_qp/30/Fh_max:0} / {req:S/controller_qp/45/Fh_max:0} N | {qp_err_sf} | {qp_err_lift} N |
+| Hybrid (passive floor, controller may only lower) | {cap:S/hybrid/0/Fpar_min:0} N (0 deg error) | {req:S/hybrid/0/Fh_max:0} N | {cap:S/hybrid/0/sf_min:2} | {req:S/hybrid/0/lift_max:0} N |
+
+Passive slip can deviate from the arrest direction by up to {req:S/group_tuned/ang_max:0} deg (perpendicular component up to {req:S/group_tuned/perp_max:0} N).
+The worst-case resultant with EVERY cable at its slip tension at once (geometry ignored) is {req:S/group_tuned/upper_bound_all_slip:1} N (≤ {int:K/resultant_bound_all_slip} N) for the
+group-tuned set, below the {int:K/envelope_SF1p5} N SF-{desc:R/params/SF:1} envelope, so the bound holds without any direction logic (tested). Sliding SF
+at the full slip resultant is >= {cap:S/group_tuned/sf_slide_min:2}. The thresholds are the grid-search optimum (5 N grid, minimum resultant/along
+ratio) over the {int:S/group_tuned/n_feasible} triples that meet the three constraints (along >= {int:K/F_lim} N, resultant <= {int:K/envelope_SF1p5} N, lift <= {cap:R/params/CAP_ARREST:0} N); the
+earlier 150/150/110 N set (tuned for the narrower 0.11/0.19 belt) gives less than the {int:K/F_lim} N target along the fall with the CAD belt
+and was replaced.
+Recommendation: passive, group-tuned, spring-applied power-off brakes (guaranteed bound, fail-safe, no controller
+in the load path). An electromagnet may trim thresholds per direction, but a current-controlled slip brake alone
+is not recommended: it depends on the direction estimate (30 deg error -> {cap:S/controller_qp/30/Fpar_min:0} N, below the {int:K/F_lim} N target) and a
+loss of power must still leave a safe bound. Per-spool brake table (r_s = {geo:K/spool_radius*1000:0} mm, rated holding torque = 1.5 x
+slip torque, rounded up):
+
+| Spool group | Cables | T_slip | Slip torque | Rated hold torque |
+|---|---|---|---|---|
+| corner | rearL, rearR, frontL, frontR | {int:S/brake_table_rs0.025/corner/T_slip} N | {req:S/brake_table_rs0.025/corner/slip_torque:2} N m | {req:S/brake_table_rs0.025/corner/rated_hold_torque:2} N m |
+| lateral | latL, latR | {int:S/brake_table_rs0.025/lateral/T_slip} N | {req:S/brake_table_rs0.025/lateral/slip_torque:2} N m | {req:S/brake_table_rs0.025/lateral/rated_hold_torque:2} N m |
+| centre | rearC, frontC | {int:S/brake_table_rs0.025/centre/T_slip} N | {req:S/brake_table_rs0.025/centre/slip_torque:2} N m | {req:S/brake_table_rs0.025/centre/rated_hold_torque:2} N m |
+| BWS (hang only, 1.5 x 85 kg x g = {hang_t} N) | bws | not a slip spool | - | {req:S/brake_table_rs0.025/bws (hang only, kept slack in horizontal arrest)/rated_hold_torque:2} N m |
+| (alternative) current-set brake | any | max QP tension {req:S/brake_table_rs0.025/controller (current-set) brake rating/T_max_qp:1} N | - | {req:S/brake_table_rs0.025/controller (current-set) brake rating/rated_hold_torque:2} N m |
+
+This supersedes the earlier single-cable sizing (one rating for all spools). Not modelled: load sharing through
+cable stretch between spools, slip hysteresis, pelvis displacement away from nominal.
+
+## 5. Envelope and sensitivities
+- D3 envelope: {int:K/F_lim} N along the fall (≥ {cap:S/group_tuned/Fpar_min:0} N achieved) with a ≤ {int:K/resultant_bound_all_slip} N resultant bound (brake slip torques {req:S/brake_table_rs0.025/corner/slip_torque:2}-{req:S/brake_table_rs0.025/lateral/slip_torque:2} N m),
+  SF >= {cap:S/group_tuned/sf_min:2} worst direction; walker slides at {cap:R/slide_limit/mu=0.5/F_slide:0} N ({cap:R/slide_limit/mu=0.3/F_slide:0} N at μ 0.3). Beyond this: conceptual only.
+- HEADLINE coverage of caught trials, passive slip (force = what the group-tuned passive brakes give for each trial's
+  fall direction; 1-D stop with the along-fall component, static tip / slide / dynamic tip with the full resultant;
+  data/results.json `dyn.passive`), next to the old fixed-{int:K/F_lim} N metric ({int:K/F_lim} N along the fall, QP tensions); coverage percentages rounded down, CI lower bound down / upper bound up:
+  lock {lock28} s: passive {covp:280}, fixed {covf:280}.
+  lock 0.15 s: passive {covp:150}, fixed {covf:150}.
+  lock 0.08 s: passive {covp:080}, fixed {covf:080}.
+  Passive failures are all 1-D stopping failures ({int:R/dyn/passive/280/n_not_arrested} / {int:R/dyn/passive/150/n_not_arrested} / {int:R/dyn/passive/080/n_not_arrested} trials not arrested within 0.25 m); none fails the
+  static tip (min SF {cap:R/dyn/passive/280/sf_tip_min:2}), slide ({req:R/dyn/passive/280/slide/max*1000:0} mm) or dynamic tip check. Along-fall force over the trials: median {desc:R/dyn/passive/280/Fpar/median:0} N (descriptive), p95 {desc:R/dyn/passive/280/Fpar/p95:0} N (descriptive),
+  max {req:R/dyn/passive/280/Fpar/max:1} N (peak resultant {req:R/dyn/passive/280/F_peak_resultant/max:1} N).
+- Coverage of caught trials with a fixed force limit F_lim = 200/250/300/400 N (old metric). Corrected metric:
+  arrested within 0.25 m AND no dynamic tip AND static tip SF >= {desc:R/params/SF:1} at the peak force AND walker slide <= {slide_tol_cm} cm.
+  Counts, Wilson 95 % CI:
+  lock {lock28} s (n = {ncaught}): D3 {int:R/dyn/curves/280|D3 recommended/F_lim=200/k}/{int:R/dyn/curves/280|D3 recommended/F_lim=250/k}/{int:R/dyn/curves/280|D3 recommended/F_lim=300/k}/{int:R/dyn/curves/280|D3 recommended/F_lim=400/k} ({pctc:280:D3 recommended:200}/{pctc:280:D3 recommended:250}/{pctc:280:D3 recommended:300}/{pctc:280:D3 recommended:400} %; CI at {int:K/F_lim} N {ci:R/dyn/curves/280|D3 recommended/F_lim=300/ci_lo:R/dyn/curves/280|D3 recommended/F_lim=300/ci_hi} %).
+  lock 0.15 s (n = {int:R/dyn/curves/150|D3 recommended/F_lim=300/n}): D3 {int:R/dyn/curves/150|D3 recommended/F_lim=200/k}/{int:R/dyn/curves/150|D3 recommended/F_lim=250/k}/{int:R/dyn/curves/150|D3 recommended/F_lim=300/k}/{int:R/dyn/curves/150|D3 recommended/F_lim=400/k} ({pctc:150:D3 recommended:200}/{pctc:150:D3 recommended:250}/{pctc:150:D3 recommended:300}/{pctc:150:D3 recommended:400} %; CI at {int:K/F_lim} N {ci:R/dyn/curves/150|D3 recommended/F_lim=300/ci_lo:R/dyn/curves/150|D3 recommended/F_lim=300/ci_hi} %).
+  lock 0.08 s (n = {int:R/dyn/curves/080|D3 recommended/F_lim=300/n}): D3 {int:R/dyn/curves/080|D3 recommended/F_lim=200/k}/{int:R/dyn/curves/080|D3 recommended/F_lim=250/k}/{int:R/dyn/curves/080|D3 recommended/F_lim=300/k}/{int:R/dyn/curves/080|D3 recommended/F_lim=400/k} ({pctc:080:D3 recommended:200}/{pctc:080:D3 recommended:250}/{pctc:080:D3 recommended:300}/{pctc:080:D3 recommended:400} %; CI at {int:K/F_lim} N {ci:R/dyn/curves/080|D3 recommended/F_lim=300/ci_lo:R/dyn/curves/080|D3 recommended/F_lim=300/ci_hi} %).
+  D0 (as proposed), same metric: {covc:280:D0 as proposed:300} at {int:K/F_lim} N at lock {lock28} s,
+  {covcs:150:D0 as proposed:300} at 0.15 s and {covcs:080:D0 as proposed:300} at 0.08 s. Its earlier ~{cap:R/dyn/curves/280|D0 as proposed/F_lim=300/good_dynamic*100:0} % came from a dynamic-only check
+  that ignores static margin and sliding.
+- Allowing {f491} N is worse, not better: D3 coverage at F_lim = {f491} N is {covcs:280:D3 recommended:491} (vs {int:R/dyn/curves/280|D3 recommended/F_lim=300/k}/{ncaught} at {int:K/F_lim} N), because the static SF-{desc:R/params/SF:1} check fails above {int:K/envelope_SF1p5} N.
+- D3 SF-{desc:R/params/SF:1} envelope sensitivity (nominal {int:K/envelope_SF1p5} N; each value is an envelope, rounded down): outriggers not deployed {s_noout}; outriggers +0.15 m {s_out15};
+  60 kg walker {s_w60}; 100 kg {s_w100}; pelvis 0.15 m lower {s_low}; pelvis 0.10 m rearward/forward {s_rear}/{s_fwd}; pelvis 0.10 m to the
+  left {s_left}; walker CG 0.10 m higher {s_cgup}; CG 0.10 m rearward {s_cgrear}; 6 cables {s_6}; 4 cables {s_4}; all anchors at 1.20 m {s_all12};
+  corners at 1.50 m {s_c15} (data/results.json `sensitivity`; D3 variants use the contract geometry, BWS anchor
+  ({geo:K/bws_anchor/0:2}, 0, {geo:K/bws_anchor/2:2})). Lateral tipping and outriggers govern.
+- Hanging patient (1.5 × 85 kg): with the BWS anchor overhead → {hang_t} N down, no horizontal load, no tip.
+  With the SPEC rear-beam winch → {hang_h} N horizontal, tip SF {hang_sf_d3} (D3) / {hang_sf_60} (60 kg): unusable.
+
+## 6. NOT validated
+No hardware or human data; no stress analysis (columns, base, anchors, belt, terminations, brake shock);
+no spool inertia/backlash. "Required force" uses a 1-D LIP stopping model. μ, cable stiffness, walker CG/mass,
+servo data are assumptions. Braked omni wheels can slip along roller axes → rubber outrigger pads credited,
+not wheel brakes. Outrigger deployment time and front-anchor routing across the open U are not designed.
+Independent slipping of several brakes will not preserve force direction (modelled for the walker, not fed back into
+the patient dynamics). {lock28} s lock delay is the SPEC
+value; 0.14 s is a guess. {desc:R/params/XI_ARREST:1} BW lift tolerance and belt loads unvalidated. No mobile cable system rated for
+200–300 N arrest was found (mTPAD ≈35 N per cable).
+
+## 7. Suggested wording
+"We propose a walker-mounted cable interface with transparent slack, graded nudging (≤ {nudge_n} N) and a
+power-off spool brake that slips at a set force (passive slip brakes give ≥ {int:K/F_lim} N along the fall direction and
+≤ {int:K/resultant_bound_all_slip} N horizontal resultant). A load analysis shows arrest on a walker is
+feasible only with an ~{int:K/mass} kg low-CG walker, deployable outriggers and mixed-height anchors; in the
+simulated catches the passive slip brakes sufficed in {int:R/dyn/passive/280/k} of the {ncaught} trials that the CP simulation ended as CAUGHT
+(lock {lock28} s, one seeded {ntot}-trial run; the other trials are unaffected). The concept is unbuilt and
+unvalidated."
+
+## 8. D3 interface contract (what the CAD must build; SPEC section 4 coordinates: floor origin, x forward, y left, z up)
+
+| Item | Value |
+|---|---|
+| Arrest force (horizontal, any direction) | passive slip brakes give >= {int:K/F_lim} N along the fall direction ({cap:S/group_tuned/Fpar_min:0} N minimum, {int:S/group_tuned/n_directions} directions) and <= {int:K/resultant_bound_all_slip} N resultant (bound with all cables slipping at once) |
+| Static tip safety factor | >= {desc:R/params/SF:1} required; D3 envelope {int:K/envelope_SF1p5} N (SF {desc:R/params/SF:1}), {cap:R/envelope_sf1/D3 recommended/min:0} N (SF 1.0); SF >= {cap:S/group_tuned/sf_min:2} at the full slip resultant, {sf_ar_min} at {int:K/F_lim} N (QP) |
+| Walker mass / CG | {int:K/mass} kg total incl. ~{ballast} kg low ballast; CG ({geo:K/cg/0:2}, {geo:K/cg/1:0}, {geo:K/cg/2:2}) m |
+| Wheel contact points | x = {geo:K/wheels_x/0:3} / {geo:K/wheels_x/1:3}, y = +-{geo:K/wheels_y:3} ({geo:K/footprint_xy/0:2} x {geo:K/footprint_xy/1:2} footprint inset by the {geo:K/wheel_radius:3} m wheel radius; the CAD wheels are centred there); braked omni wheels NOT credited for friction |
+| Outrigger feet, deployed on catch | ex = ey = {geo:K/outrigger_ex:2} m beyond the wheel line: feet at x = {geo:K/outrigger_feet_x/0:3} and {geo:K/outrigger_feet_x/1:3}, y = +-{geo:K/outrigger_feet_y:3}; rubber pads, mu >= {geo:K/mu_pad:1}; fully down before lock engagement (<= decision + {lock28} s) |
+| Corner anchors (4), z = {geo:K/corner_anchors/0/2:2}; anchor = cable exit point (fairlead tip) | rearL ({geo:K/corner_anchors/0/0:2}, +{geo:K/corner_anchors/0/1:2}), rearR ({geo:K/corner_anchors/1/0:2}, -{geo:K/corner_anchors/0/1:2}), frontL ({geo:K/corner_anchors/2/0:2}, +{geo:K/corner_anchors/2/1:2}), frontR ({geo:K/corner_anchors/3/0:2}, -{geo:K/corner_anchors/2/1:2}) |
+| Lateral anchors (2), z = {geo:K/lateral_anchors/0/2:2} | ({geo:K/lateral_anchors/0/0:2}, +{geo:K/lateral_anchors/0/1:2}), ({geo:K/lateral_anchors/1/0:2}, -{geo:K/lateral_anchors/0/1:2}) |
+| Centre anchors (2), z = {geo:K/centre_anchors/0/2:2} | rear ({geo:K/centre_anchors/0/0:2}, 0), front ({geo:K/centre_anchors/1/0:2}, 0) |
+| Belt attachment points (z = {geo:K/belt_attach/RL/2:2}; ray from the pelvis to each anchor on the belt ellipse) | rearL/R ({geo:K/belt_attach/RL/0:3}, +-{geo:K/belt_attach/RL/1:3}), frontL/R ({geo:K/belt_attach/FL/0:3}, +-{geo:K/belt_attach/FL/1:3}), latL/R ({geo:K/belt_attach/LL/0:3}, +-{geo:K/belt_attach/LL/1:3}), rearC ({geo:K/belt_attach/CR/0:2}, 0), frontC ({geo:K/belt_attach/CF/0:2}, 0) |
+| BWS anchor (cantilevered top beam; cable exit = underside of the beam) | ({geo:K/bws_anchor/0:2}, 0, {geo:K/bws_anchor/2:2}), directly above the nominal pelvis (raised in CAD so the beam clears the patient's chest; the cable is vertical, so statics are unchanged); hang load {hang_t} N; spool brake rated {req:S/brake_table_rs0.025/bws (hang only, kept slack in horizontal arrest)/rated_hold_torque:2} N m; slack in horizontal arrest |
+| Nominal pelvis / belt | ({geo:K/pelvis/0:2}, 0, {geo:K/pelvis/2:2}); belt centre-line half-depth {geo:K/belt/hd:2}, half-width {geo:K/belt/hw:3} (band {geo:K/belt/h:2} high, {geo:K/belt/t:2} thick) |
+| Pelvis lift cap | <= {desc:R/params/XI_ARREST:1} x 60 kg x g = {cap:R/params/CAP_ARREST:0} N in arrest (D3: {lift_ar_lo}-{lift_ar_hi} N at {int:K/F_lim} N QP, <= {req:S/group_tuned/lift_max:0} N under passive slip); {desc:R/params/XI_NUDGE:2} BW = {cap:R/params/CAP_NUDGE:0} N in nudge (D3: <= {nudge_lift} N) |
+| Passive slip thresholds | corner {int:K/T_slip/corner}, lateral {int:K/T_slip/lateral}, centre {int:K/T_slip/centre} N; spool radius {geo:K/spool_radius*1000:0} mm; rated hold {req:S/brake_table_rs0.025/corner/rated_hold_torque:2} / {req:S/brake_table_rs0.025/lateral/rated_hold_torque:2} / {req:S/brake_table_rs0.025/centre/rated_hold_torque:2} N m |
+| Nudge | {nudge_n} N resultant, T_max {nudge_tmax} N per cable, tip SF >= {nudge_sf} |
+| Front-centre anchor | ({geo:K/centre_anchors/1/0:2}, 0, {geo:K/centre_anchors/1/2:2}) is carried by the hinged front gate arm (section 8b): horizontal tube at z = {geo:K/front_gate/hinge/2:2}, hinged on the front-right column ({geo:K/front_gate/hinge/0:2}, {geo:K/front_gate/hinge/1:2}), latched to the front-left column ({geo:K/front_gate/latch/0:2}, +{geo:K/front_gate/latch/1:2}); the CF spool sits at its mid-span so the cable exit is exactly this anchor when latched. No post stands in the entry opening. Interlock: the controller refuses to arm unless the latch sensor reports latched |
+| CAD | D3 CAD: cad/build_cad_d3.py → cad/catchpoint_d3.glb; renders in render/blender/d3/. The older cad/build_cad.py is the baseline SEA design, kept for reference |
+
+Machine-readable and authoritative: data/d3_contract.json (read by sizing.py, run_analysis.py, slip_analysis.py and
+cad/build_cad_d3.py; `test_d3_consistency.py` asserts contract, generated CAD parts and analysis agree within 1 mm). Its derived fields
+(resultant bound, hold torques, lift caps, force wording) are regenerated by `make_report.py` through `publish.py`.
+
+## 8b. Front gate (hinged arm carrying the front-centre anchor; data/gate.json from gate_check.py)
+
+**Design.** A horizontal arm at pelvis height (z = {geo:K/front_gate/hinge/2:2} m) is hinged on the front-right column at ({geo:K/front_gate/hinge/0:2}, {geo:K/front_gate/hinge/1:2}) and swings {int:K/front_gate/open_angle_deg} deg open toward the outside (+x) for entry and exit; closed, it spans the opening and latches onto the front-left column at ({geo:K/front_gate/latch/0:2}, +{geo:K/front_gate/latch/1:2}); hinge-to-latch distance {geo:K/front_gate/arm_length:2} m. The front-centre spool is mounted at the arm mid-span, so with the gate latched its cable exit is exactly the contract anchor ({geo:K/centre_anchors/1/0:2}, 0, {geo:K/centre_anchors/1/2:2}) and the analysis geometry (sections 3-8) is unchanged. The cable line of action meets the arm axis, so the arm sees no torsion. With the gate open nothing stands in the entry opening below pelvis height.
+
+**Interlock.** A latch sensor reports gate latched / not latched. The controller refuses to arm (no nudge, no catch) unless the gate is latched, and drops to safe-stop if the latch opens while armed. The mechanical latch is rated for at least {req:K/front_gate/design_loads_N/latch_rating_min:1} N (1.5 x the design cable force); a failure of the latch while armed (cantilever case) is therefore out of scope.
+
+**Design loads on the gate** (the front-centre cable force, horizontal along x): (a) front-centre passive slip tension {req:K/front_gate/design_loads_N/T_slip_centre:1} N; (b) worst controller (QP) tension on frontC over the arrest and nudge rows of data/results.json: {req:G/loads/T_qp_frontC_worst:1} N (arrest {req:G/loads/T_qp_frontC_arrest:1} N, nudge {req:G/loads/T_qp_frontC_nudge:1} N). The gate is sized for the larger, {req:G/loads/design_cable_force:1} N.
+
+| Item (latched, simply supported span {geo:K/front_gate/arm_length:2} m, load at mid-span) | Value |
+|---|---|
+| Hinge reaction (horizontal / resultant incl. weight) | {req:G/latched/hinge_reaction_horizontal_N:1} N / {req:G/latched/hinge_reaction_resultant_N:1} N |
+| Latch reaction (horizontal / resultant incl. weight) | {req:G/latched/latch_reaction_horizontal_N:1} N / {req:G/latched/latch_reaction_resultant_N:1} N |
+| Bending moment at the hinge / at mid-span | {req:G/latched/M_hinge_Nm:1} N m (pin) / {req:G/latched/M_mid_horizontal_Nm:2} N m (cable pull), {req:G/latched/M_mid_vertical_Nm:2} N m (weight) |
+| Unlatched, information only (cantilever, load at mid-span): hinge reaction / hinge moment | {req:G/unlatched_cantilever_info/hinge_reaction_horizontal_N:1} N / {req:G/unlatched_cantilever_info/M_hinge_Nm:2} N m |
+| Tube | {geo:K/front_gate/tube/width_mm:0} x {geo:K/front_gate/tube/height_mm:0} x {geo:K/front_gate/tube/wall_mm:0} mm {txt:K/front_gate/tube/material}, wide side horizontal; I = {cap:G/section/I_strong_mm4:0} mm^4, net of the {geo:K/front_gate/fairlead_hole_mm:0} mm fairlead hole {cap:G/section/I_strong_net_mm4:0} mm^4 ({cap:G/section/S_strong_net_mm3:0} mm^3) |
+| Peak stress at the fairlead hole (Kt = {geo:K/front_gate/hole_Kt:1}, plus weight bending; spool {geo:K/front_gate/spool_mass_kg_assumed:1} kg assumed) | {req:G/latched/sigma_peak_MPa:1} MPa against sigma_allow = {geo:G/material/sigma_allow_MPa:0} MPa (yield {geo:G/material/sigma_y_MPa:0} MPa / {int:K/front_gate/tube/allow_divisor}) |
+| Safety factor on yield | {cap:G/latched/SF_yield:2} (sigma_allow margin {cap:G/latched/SF_allow:2}) |
+| Mid-span deflection (cable exit shift) under the design load | {req:G/latched/deflection_mm:2} mm (anchor tolerance 1 mm) |
+| Check | {gate_pass} |
+
+Not validated: static hand calculation only; hinge and latch clearance, pin and latch hardware, fatigue and impact loading of the gate are not analysed. The {geo:K/front_gate/spool_mass_kg_assumed:1} kg spool mass is an assumption.

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatchPoint team plan</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8f9;--surface:#fff;--fg:#16242b;--muted:#50636c;--border:#cfd9de;--accent:#1F6F78}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1619;--surface:#182226;--fg:#e4edf0;--muted:#a9bcc4;--border:#34454d;--accent:#62b2b4}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:400 16.5px/1.65 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 16px 72px}a{color:var(--accent)}
+.back{display:inline-block;margin-bottom:18px;text-decoration:none;font-weight:600}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}h2{margin-top:40px;font-size:24px;border-bottom:2px solid var(--accent);padding-bottom:6px}
+.tw{overflow-x:auto;margin:16px 0}table{border-collapse:collapse;min-width:560px;width:100%;font-size:14.5px;background:var(--surface)}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}th{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+code{font-size:.9em;background:color-mix(in srgb,var(--accent) 10%,var(--surface));padding:1px 5px;border-radius:4px}
+</style></head><body><main>
+<a class="back" href="../index.html#plan">&larr; CatchPoint</a>
+<h1>CatchPoint — team plan (Thu 22 Oct → Tue 3 Nov 2026)</h1>
+<p><strong>Project statement.</strong> CatchPoint is a simulation-validated proposal for a
+recoverability-aware safety layer for robotic gait/balance trainers: it preserves the
+stroke patient's own reactive step, adds only the minimum pelvic assistance needed, and
+escalates to a mechanically analysed catch when recovery is no longer feasible.</p>
+<p><strong>Scope (frozen 22 Oct).</strong></p>
+<ul>
+<li><strong>Core claim = I1</strong>: recoverability-based graded control (hands-off → nudge → catch), evidenced by the Monte Carlo study.</li>
+<li><strong>I2 = feasibility analysis</strong>: walker-mounted cable interface (slack / nudge / slip-limited catch), design D3, &quot;conceptual, unbuilt, unvalidated&quot;.</li>
+<li><strong>Physics demo = supporting demonstration</strong>: pretrained Unitree G1 policy with simulated paretic weakness in MuJoCo, closed-loop B0/B1/CP through the D3 cables (physics_demo/). Shown on one main slide with the Codex-approved wording (calibrated on the same push grid; robot-policy demonstration only). Owner: E; video edit: C.</li>
+<li><strong>I3 = appendix only</strong>: surrogate-learner study, quoted with its assumptions; never used as evidence for patients or for the core claim.</li>
+<li>No prototype, no clinical-effect claim; every result is labelled &quot;in simulation&quot;.</li>
+</ul>
+<p><strong>Briefing items → owner</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Briefing item (slides 7–8)</th>
+<th>Our answer</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Specific healthcare problem</td>
+<td>Falls and missing reactive-step practice during stroke balance training</td>
+<td>A</td>
+</tr>
+<tr>
+<td>Existing solutions and gaps</td>
+<td>Threshold-and-lock walkers (MRBA/DRBA), RobUST, mTPAD, overhead BWS</td>
+<td>A</td>
+</tr>
+<tr>
+<td>Specific innovation</td>
+<td>I1 control (core); I2 interface (feasibility)</td>
+<td>D, B</td>
+</tr>
+<tr>
+<td>New sensing / interface / mechanism / actuation / control</td>
+<td>Sensing fusion (C); cable interface + slip-brake spools (B); control (D)</td>
+<td>B, C, D</td>
+</tr>
+<tr>
+<td>Diagrams, CAD, simulation, video</td>
+<td>CAD + load analysis (B); block/timing diagrams (C, D); Monte Carlo (E); demo video (C)</td>
+<td>B, C, D, E</td>
+</tr>
+<tr>
+<td>Close the loop</td>
+<td>Limitations + next steps</td>
+<td>A</td>
+</tr>
+</tbody>
+</table></div>
+<h2>Roles (one question each, one talk segment each)</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Question</th>
+<th>Definition of done</th>
+<th>Slides</th>
+<th>Talk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A Clinical — &quot;why&quot;</strong></td>
+<td>What goes wrong for patients today, and how would we know we helped?</td>
+<td>Problem slide (cited stats); existing-solutions table with gaps; outcome measures (Berg Balance Scale, fall count, reactive-step metrics); safety/ethics; limitations &amp; next steps; <strong>leads the final claim audit</strong></td>
+<td>3</td>
+<td>~3 min</td>
+</tr>
+<tr>
+<td><strong>B Mechanical — &quot;body&quot;</strong></td>
+<td>Can the walker nudge and catch without tipping?</td>
+<td>D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope</td>
+<td>3</td>
+<td>~2.5 min</td>
+</tr>
+<tr>
+<td><strong>C Sensing — &quot;eyes&quot;</strong></td>
+<td>How does the robot know the patient's state fast enough?</td>
+<td>Sensor layout (foot LiDAR, cable-length pelvis tracking, load cells, IMU); XCoM estimation + delay compensation diagram; delay budget; calibration protocol; <strong>records the demo video</strong> from the interactive simulator</td>
+<td>2</td>
+<td>~2 min</td>
+</tr>
+<tr>
+<td><strong>D Control — &quot;brain&quot;</strong></td>
+<td>When does it act, and how much?</td>
+<td>L0/L1/L2 decision flow; minimum-force rule (plain language + appendix equation); timing diagram (decision → force → brake); safety argument; low-level admittance</td>
+<td>3</td>
+<td>~3 min</td>
+</tr>
+<tr>
+<td><strong>E Simulation — &quot;proof&quot;</strong></td>
+<td>Does it beat today's approach?</td>
+<td>Frozen Monte Carlo results (operating points, counts, CIs, ablations CP-pop / CP-noDC / XCoM-only); I3 appendix slide (optional, with caveats)</td>
+<td>2–3</td>
+<td>~2.5 min</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Shared:</strong> one slide template (deck/); each member answers Q&amp;A on their own segment.</p>
+<h2>Interface contracts (agree by Sat 24 Oct)</h2>
+<ul>
+<li><strong>D → B:</strong> nudge ≤ 150 N resultant; catch force limit F_lim = 300 N; arrest load cases from analysis/i2_sizing/data/results.json.</li>
+<li><strong>B → D/E:</strong> D3 contract in analysis/i2_sizing/report.md (F_lim, static SF 1.5 envelope, outrigger extension 0.25 m, anchor heights/positions, BWS cantilever anchor, lift cap, walker mass/CG).</li>
+<li><strong>C → D:</strong> delay budget: sensing 0.03 s + actuation 0.07 s + lag 0.02 s; catch lock 0.28 s.</li>
+<li><strong>E → all:</strong> frozen evidence set — results/summary.csv, ci.csv, matched.csv, results/sizing.md, analysis/i2_sizing/data/results.json, results/i3_summary.md, physics_demo/{sweep_all,sweep_pareto}.json, physics_demo/ppo/compare.json. Slides quote only these, with denominators (e.g. &quot;804/814 caught trials&quot;).</li>
+</ul>
+<h2>Timeline</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Dates</th>
+<th>Milestone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thu 22 – Sat 24 Oct</td>
+<td>Scope frozen; interface contracts agreed; everyone reads their part of the repo</td>
+</tr>
+<tr>
+<td>Sun 25 – Wed 28 Oct</td>
+<td>Build: D3 CAD + sizing slides (B); diagrams (C, D); results slides (E); problem/gap slides (A)</td>
+</tr>
+<tr>
+<td>Thu 29 Oct</td>
+<td>Draft slides from all five → merged deck</td>
+</tr>
+<tr>
+<td>Fri 30 – Sat 31 Oct</td>
+<td>Claim-to-evidence audit (A leads): no prototype claim, no clinical-effect claim, I2 numbers conditional with denominators, I3 appendix-only; demo video (C)</td>
+</tr>
+<tr>
+<td>Sun 1 – Mon 2 Nov</td>
+<td>Two timed rehearsals (10–15 min) + mock Q&amp;A per role</td>
+</tr>
+<tr>
+<td>Tue 3 Nov</td>
+<td>Submit slides</td>
+</tr>
+</tbody>
+</table></div>
+</main></body></html>

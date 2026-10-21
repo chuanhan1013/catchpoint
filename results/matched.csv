@@ -1,0 +1,11 @@
+family,fall_target,self_pct_interp,bracket
+B1,4.0000,5.8739,"B1 theta=0.03 (2.6% fall, 0.7% SELF) / B1 theta=0.05 (5.0% fall, 9.6% SELF)"
+B1,6.0000,11.5938,"B1 theta=0.05 (5.0% fall, 9.6% SELF) / B1 theta=0.08 (13.4% fall, 25.9% SELF)"
+B1-XCoM,4.0000,31.7018,"B1-XCoM theta=0.05 (1.7% fall, 31.2% SELF) / B1-XCoM theta=0.08 (4.5% fall, 31.8% SELF)"
+B1-XCoM,6.0000,32.1167,"B1-XCoM theta=0.08 (4.5% fall, 31.8% SELF) / B1-XCoM theta=0.12 (9.0% fall, 32.8% SELF)"
+B2,4.0000,0.0000,"B2 K=200 (3.9% fall, 0.0% SELF) / B2 K=100 (8.2% fall, 0.0% SELF)"
+B2,6.0000,0.0000,"B2 K=200 (3.9% fall, 0.0% SELF) / B2 K=100 (8.2% fall, 0.0% SELF)"
+CP,4.0000,32.5714,"CP m=0.15 (3.9% fall, 32.5% SELF) / CP m=0.1 (4.2% fall, 32.8% SELF)"
+CP,6.0000,35.1971,"CP m=0 (5.3% fall, 34.7% SELF) / CP m=-0.03 (6.2% fall, 35.4% SELF)"
+CP-pop,4.0000,nan,not bracketed
+CP-pop,6.0000,29.9286,"CP-pop m=0.15 (5.9% fall, 29.9% SELF) / CP-pop m=0.1 (6.2% fall, 30.0% SELF)"

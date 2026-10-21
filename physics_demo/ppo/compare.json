@@ -1,0 +1,1797 @@
+{
+"ft": "C:\\Users\\ak990\\Projects\\me5412-fallsafe\\physics_demo\\ppo\\policy_ft.pt",
+"rows": [
+{
+"F": 60,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 18.8
+},
+{
+"F": 60,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 60,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 2.8
+},
+{
+"F": 60,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 60.6
+},
+{
+"F": 100,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 4.6
+},
+{
+"F": 100,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 35.5
+},
+{
+"F": 100,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 10.6
+},
+{
+"F": 100,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 1.2
+},
+{
+"F": 100,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 17.4
+},
+{
+"F": 100,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 32.8
+},
+{
+"F": 100,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 100,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 46.2
+},
+{
+"F": 100,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 354.6
+},
+{
+"F": 140,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 29.2
+},
+{
+"F": 140,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 49.4
+},
+{
+"F": 140,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 12.8
+},
+{
+"F": 140,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 33.9
+},
+{
+"F": 140,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 14.5
+},
+{
+"F": 140,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 4.2
+},
+{
+"F": 140,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 12.0
+},
+{
+"F": 140,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 50.5
+},
+{
+"F": 140,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 59.5
+},
+{
+"F": 140,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 140,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 310.0
+},
+{
+"F": 140,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 11.0
+},
+{
+"F": 180,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 392.3
+},
+{
+"F": 180,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 50.4
+},
+{
+"F": 180,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 63.4
+},
+{
+"F": 180,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 34.4
+},
+{
+"F": 180,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 51.9
+},
+{
+"F": 180,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 10.0
+},
+{
+"F": 180,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 36.5
+},
+{
+"F": 180,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 1.7
+},
+{
+"F": 180,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 80.6
+},
+{
+"F": 180,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 1.6
+},
+{
+"F": 180,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 67.9
+},
+{
+"F": 180,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 18.1
+},
+{
+"F": 180,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 241.3
+},
+{
+"F": 180,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 2.9
+},
+{
+"F": 180,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 180,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 282.2
+},
+{
+"F": 180,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 30.0
+},
+{
+"F": 220,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 393.2
+},
+{
+"F": 220,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 260.2
+},
+{
+"F": 220,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 417.4
+},
+{
+"F": 220,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 247.6
+},
+{
+"F": 220,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 332.4
+},
+{
+"F": 220,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 29.4
+},
+{
+"F": 220,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 49.2
+},
+{
+"F": 220,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 12.5
+},
+{
+"F": 220,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 283.1
+},
+{
+"F": 220,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 13.7
+},
+{
+"F": 220,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 83.9
+},
+{
+"F": 220,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 35.8
+},
+{
+"F": 220,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 348.8
+},
+{
+"F": 220,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 17.7
+},
+{
+"F": 220,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 220,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 422.5
+},
+{
+"F": 220,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 40.0
+},
+{
+"F": 260,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 426.0
+},
+{
+"F": 260,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 348.2
+},
+{
+"F": 260,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 389.3
+},
+{
+"F": 260,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 276.6
+},
+{
+"F": 260,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 466.9
+},
+{
+"F": 260,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 39.2
+},
+{
+"F": 260,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 352.6
+},
+{
+"F": 260,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 30.2
+},
+{
+"F": 260,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 383.6
+},
+{
+"F": 260,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 28.0
+},
+{
+"F": 260,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 278.8
+},
+{
+"F": 260,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 49.2
+},
+{
+"F": 260,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 366.9
+},
+{
+"F": 260,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 35.6
+},
+{
+"F": 260,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 260,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 502.2
+},
+{
+"F": 260,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 277.3
+},
+{
+"F": 300,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.0,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 623.0
+},
+{
+"F": 300,
+"t0": 2.0,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 358.5
+},
+{
+"F": 300,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.1,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 393.1
+},
+{
+"F": 300,
+"t0": 2.1,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 251.1
+},
+{
+"F": 300,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.2,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 453.0
+},
+{
+"F": 300,
+"t0": 2.2,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 252.2
+},
+{
+"F": 300,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.3,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 534.7
+},
+{
+"F": 300,
+"t0": 2.3,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 247.4
+},
+{
+"F": 300,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.4,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 421.3
+},
+{
+"F": 300,
+"t0": 2.4,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 37.4
+},
+{
+"F": 300,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.5,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "nudged",
+"impulse_h": 153.3
+},
+{
+"F": 300,
+"t0": 2.5,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 256.3
+},
+{
+"F": 300,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.6,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 306.8
+},
+{
+"F": 300,
+"t0": 2.6,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "nudged",
+"impulse_h": 46.2
+},
+{
+"F": 300,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "pre",
+"outcome": "fall",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.7,
+"ctrl": "B0",
+"policy": "ft",
+"outcome": "recovered alone",
+"impulse_h": 0.0
+},
+{
+"F": 300,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "pre",
+"outcome": "caught",
+"impulse_h": 410.9
+},
+{
+"F": 300,
+"t0": 2.7,
+"ctrl": "CP",
+"policy": "ft",
+"outcome": "caught",
+"impulse_h": 251.2
+}
+]
+}

@@ -1,0 +1,140 @@
+{
+ "envelope": {
+  "D0 as proposed": {
+   "min": 130.0,
+   "argmin_phi": 0,
+   "mean": 159.16666666666666
+  },
+  "D1 high anchors": {
+   "min": 150.0,
+   "argmin_phi": 90,
+   "mean": 197.91666666666666
+  },
+  "D2 + ballast": {
+   "min": 260.0,
+   "argmin_phi": 90,
+   "mean": 331.25
+  },
+  "D3 recommended": {
+   "min": 420.0,
+   "argmin_phi": 90,
+   "mean": 515.4166666666666
+  }
+ },
+ "envelope_sf1": {
+  "D0 as proposed": {
+   "min": 200.0,
+   "argmin_phi": 0,
+   "mean": 243.75
+  },
+  "D1 high anchors": {
+   "min": 230.0,
+   "argmin_phi": 90,
+   "mean": 297.5
+  },
+  "D2 + ballast": {
+   "min": 390.0,
+   "argmin_phi": 90,
+   "mean": 498.3333333333333
+  },
+  "D3 recommended": {
+   "min": 620.0,
+   "argmin_phi": 90,
+   "mean": 732.9166666666666
+  }
+ },
+ "slide": {
+  "D0 as proposed": {
+   "F_slide": 294.3,
+   "kappa": -0.0
+  },
+  "D1 high anchors": {
+   "F_slide": 345.5277987002013,
+   "kappa": 0.29651911593167823
+  },
+  "D2 + ballast": {
+   "F_slide": 575.8796645003355,
+   "kappa": 0.29651911593167823
+  },
+  "D3 recommended": {
+   "F_slide": 462.5138049596086,
+   "kappa": 0.3031857825983449
+  }
+ },
+ "slide_limit": {
+  "mu=0.3": {
+   "F_slide": 258.99728869956846,
+   "kappa": 0.3031857825983449
+  },
+  "mu=0.5": {
+   "F_slide": 462.5138049596086,
+   "kappa": 0.3031857825983449
+  },
+  "mu=0.7": {
+   "F_slide": 697.3609471635028,
+   "kappa": 0.3031857825983449
+  }
+ },
+ "sensitivity": {
+  "nominal (SF 1.5)": 420.0,
+  "SF 1.0": 620.0,
+  "pelvis 0.10 m further rearward": 420.0,
+  "pelvis 0.10 m further forward": 420.0,
+  "pelvis 0.10 m to the left": 400.0,
+  "pelvis 0.15 m lower (0.80)": 300.0,
+  "walker CG 0.10 m higher": 420.0,
+  "walker CG 0.10 m rearward": 380.0,
+  "lift cap 0.3 BW (60 kg)": 420.0,
+  "lift cap 0.8 BW (60 kg)": 420.0,
+  "outriggers not deployed": 210.0,
+  "outriggers +0.15 m": 330.0,
+  "walker 60 kg (CG 0.45 m)": 310.0,
+  "walker 100 kg": 520.0,
+  "6 cables (no centre anchors)": 330.0,
+  "4 cables (corners only)": 290.0,
+  "all 8 anchors at 1.20 m": 280.0,
+  "corners 1.50 m, mid 0.95 m": 460.0
+ },
+ "hang": {
+  "overhead x=0.42 (cantilevered top beam) | D3 recommended": {
+   "T": 1250.775,
+   "H": 0.0,
+   "Fz_down": 1250.775,
+   "sf_tip": Infinity,
+   "edge": "front",
+   "sf_slide": Infinity,
+   "margin": 0.575
+  },
+  "overhead x=0.42 (cantilevered top beam) | D1 60 kg": {
+   "T": 1250.775,
+   "H": 0.0,
+   "Fz_down": 1250.775,
+   "sf_tip": Infinity,
+   "edge": "front",
+   "sf_slide": Infinity,
+   "margin": 0.325
+  },
+  "SPEC rear beam x=0.03 | D3 recommended": {
+   "T": 2317.68303749801,
+   "H": 1951.2090000000003,
+   "Fz_down": 1250.775,
+   "sf_tip": 0.5450828980240744,
+   "edge": "front",
+   "sf_slide": 0.295967443581206,
+   "margin": -0.21719277108433732
+  },
+  "SPEC rear beam x=0.03 | D1 60 kg": {
+   "T": 2317.68303749801,
+   "H": 1951.2090000000003,
+   "Fz_down": 1250.775,
+   "sf_tip": 0.21765278652843797,
+   "edge": "front",
+   "sf_slide": 0.22197558268590453,
+   "margin": -0.5463600000000002
+  }
+ },
+ "t_stop": {
+  "median": 0.10400000000000001,
+  "p95": 0.20550000000000002
+ }
+}

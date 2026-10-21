@@ -1,0 +1,4 @@
+_chromeprof/
+_shots/
+__pycache__/
+*.pyc
