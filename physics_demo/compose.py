@@ -17,7 +17,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VID = os.path.join(HERE, "videos")
 RAW = os.path.join(VID, "raw")
 import os as _os
-FONT_DIR = _os.path.join(_os.environ.get("WINDIR", "C:/Windows"), "Fonts")  # Windows system fonts; set WINDIR or edit for other OSes
+def _font_path(name, bold=False):
+    """System font from %WINDIR%/Fonts if present, else matplotlib's bundled DejaVu Sans."""
+    p = _os.path.join(_os.environ.get("WINDIR", ""), "Fonts", name)
+    if _os.environ.get("WINDIR") and _os.path.exists(p):
+        return p
+    import matplotlib
+    return _os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf")
 FOOTER = "Physics simulation: pretrained Unitree G1 policy with simulated paretic weakness \u2014 not a patient model"
 CTRL_NAME = {"B0": "B0 \u00b7 No assistance",
              "B1": "B1 \u00b7 Threshold lock (COM > 8 cm \u2192 lock)",
@@ -29,7 +35,7 @@ TEXT = (28, 33, 40)
 
 
 def font(size, bold=False):
-    return ImageFont.truetype(os.path.join(FONT_DIR, "arialbd.ttf" if bold else "arial.ttf"), size)
+    return ImageFont.truetype(_font_path("arialbd.ttf" if bold else "arial.ttf", bold), size)
 
 
 def load(pk, ctrl):
