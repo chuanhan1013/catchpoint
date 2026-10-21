@@ -28,7 +28,7 @@ escalates to a mechanically analysed catch when recovery is no longer feasible.
 | Role | Question | Definition of done | Slides | Talk |
 |---|---|---|---|---|
 | **A Clinical — "why"** | What goes wrong for patients today, and how would we know we helped? | Problem slide (cited stats); existing-solutions table with gaps; outcome measures (Berg Balance Scale, fall count, reactive-step metrics); safety/ethics; limitations & next steps; **leads the final claim audit** | 3 | ~3 min |
-| **B Mechanical — "body"** | Can the walker nudge and catch without tipping? | D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope | 3 | ~2.5 min |
+| **B Mechanical — "body"** | Can the walker nudge and catch without tipping? | D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor, front gate) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope | 3 | ~2.5 min |
 | **C Sensing — "eyes"** | How does the robot know the patient's state fast enough? | Sensor layout (foot LiDAR, cable-length pelvis tracking, load cells, IMU); XCoM estimation + delay compensation diagram; delay budget; calibration protocol; **records the demo video** from the interactive simulator | 2 | ~2 min |
 | **D Control — "brain"** | When does it act, and how much? | L0/L1/L2 decision flow; minimum-force rule (plain language + appendix equation); timing diagram (decision → force → brake); safety argument; low-level admittance | 3 | ~3 min |
 | **E Simulation — "proof"** | Does it beat today's approach? | Frozen Monte Carlo results (operating points, counts, CIs, ablations CP-pop / CP-noDC / XCoM-only); I3 appendix slide (optional, with caveats) | 2–3 | ~2.5 min |
@@ -36,10 +36,10 @@ escalates to a mechanically analysed catch when recovery is no longer feasible.
 **Shared:** one slide template (deck/); each member answers Q&A on their own segment.
 
 ## Interface contracts (agree by Sat 24 Oct)
-- **D → B:** nudge ≤ 150 N resultant; catch force limit F_lim = 300 N; arrest load cases from analysis/i2_sizing/data/results.json.
-- **B → D/E:** D3 contract in analysis/i2_sizing/report.md (F_lim, static SF 1.5 envelope, outrigger extension 0.25 m, anchor heights/positions, BWS cantilever anchor, lift cap, walker mass/CG).
+- **D → B:** nudge ≤ 150 N resultant; catch by passive slip brakes: ≥ 300 N along the fall, ≤ 380 N resultant; arrest load cases from analysis/i2_sizing/data/results.json.
+- **B → D/E:** D3 contract in analysis/i2_sizing/data/d3_contract.json (single geometry source for CAD + analysis) and report.md §8 (F_lim, static SF 1.5 envelope, outrigger extension 0.25 m, anchor heights/positions, BWS cantilever anchor, lift cap, walker mass/CG, front gate + latch interlock).
 - **C → D:** delay budget: sensing 0.03 s + actuation 0.07 s + lag 0.02 s; catch lock 0.28 s.
-- **E → all:** frozen evidence set — results/summary.csv, ci.csv, matched.csv, results/sizing.md, analysis/i2_sizing/data/results.json, results/i3_summary.md, physics_demo/{sweep_all,sweep_pareto}.json, physics_demo/ppo/compare.json. Slides quote only these, with denominators (e.g. "804/814 caught trials").
+- **E → all:** frozen evidence set — results/summary.csv, ci.csv, matched.csv, results/sizing_D3_summary.md, analysis/i2_sizing/data/results.json, results/i3_summary.md, physics_demo/{sweep_all,sweep_pareto}.json, physics_demo/ppo/compare.json. Slides quote only these, with denominators (e.g. "805/814 caught trials").
 
 ## Timeline
 | Dates | Milestone |

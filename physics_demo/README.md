@@ -145,3 +145,80 @@ Test on the same 56 pushes as above (deterministic; `ppo/compare.py`, `ppo/recal
 - Caveats: test pushes come from the training distribution (same magnitudes and directions), so this is not a
   held-out test; r0 was re-identified on the same 56 pushes. A robot that learned to resist pushes is a better robot,
   not a better model of a stroke patient. Label these videos as a robot-policy demonstration.
+
+## v2 video suite (`videos_v2/`, copies in `CatchPoint_proposal/videos/physics_v2/`)
+Longer multi-push sessions, built for clarity. v1 (`videos/`) is unchanged.
+
+| File | Content |
+|---|---|
+| `open_ground_healthy_vs_patient.mp4` (1920×1080, 25 s) | No walker. Unimpaired G1 policy vs the impaired "patient" (right-leg torque ×0.5, 60 ms delay), same pushes. |
+| `walker_4ways.mp4` (1920×1080, 25 s) | Impaired patient in the D3 walker, 2×2: B0 none / B1 threshold lock θ 0.08 m / B2 always-on spring / CP CatchPoint (default). |
+| `cp_story.mp4` (1280×720, 25 s) | CatchPoint only, with a caption for each level. |
+| `*.gif` | Full-length GIFs (720 px / 680 px wide, 8–10 fps, 8.1–9.7 MB) plus `*_push3-4_960.gif` cuts (960 px, 10–11 s, ≤ 8.8 MB). |
+| `*_key.png`, `*_endcard.png` | One key still per video and the session-summary card. |
+
+**Push sequence (same for all):** four 0.1 s lateral pelvis pushes toward the weak (right) side, 60 / 120 / 180 /
+260 N at t = 2.4 / 6.4 / 10.4 / 14.4 s. Pushes are 4.0 s apart, a multiple of the 0.8 s gait clock, so every push
+lands at the same gait phase. The sequence was picked from a small search (`v2/seq_search.py`: 2 magnitude sets ×
+2 phases, with the outcome printed per push) so that the healthy policy survives everything while the impaired one
+falls at a medium push. A robot stops being pushed once it has fallen.
+
+**Session rules (new in `g1cp.Sim`):** `push` accepts a list. `release_after=2.0` releases a catch once it has been
+held ≥ 2 s **and** the COM is within 6 cm of the feet centre at < 0.2 m/s (a therapist re-centres the patient). Then
+the session continues.
+
+Each push gets a per-push outcome (`Sim.per_push`), judged over the 2.2 s after the push:
+- **fell**: a fall without a lock.
+- **caught**: a lock engaged within 2.2 s, or a lock already held when the push arrived (marked "held").
+- **nudged**: device impulse ≥ 1 N·s (75 kg-equivalent).
+- **alone**: otherwise.
+
+A lock that engages outside every push window counts as a false alarm (shown on the end card).
+
+**B2 (new, SPEC §5.4):** pelvic spring-damper toward the COM recorded at t = 1.0 s. K = 200 N/m × λ (mass-scaled,
+86 N/m on the 32 kg robot), D = 2·0.7·√(K m). |F| ≤ 300 N-equivalent. Plus a B1-style lock fallback when
+|COM − feet centre| > 0.14 m (0.28 s lock delay as B1). The force goes through the same delay/lag pipeline and the
+8-cable tension distribution as CP.
+
+**Walker visual:** the floor-standing front-centre post is replaced by the D3 hinged front gate: a horizontal bar at
+belt height between the front columns, with the hinge at −y and a yellow latch at +y (`render.draw_walker(gate=True)`).
+The anchor positions are unchanged, so the cable math is unchanged. v1 keeps the old post.
+
+**Outcomes (from the JSON; also on the end cards):**
+
+| | Push 1 (60 N) | Push 2 (120 N) | Push 3 (180 N) | Push 4 (260 N) |
+|---|---|---|---|---|
+| healthy, no walker | alone | alone | alone | alone |
+| patient, no walker | alone | alone | **fell** | – |
+| B0 walker, no device | alone | alone | **fell** | – |
+| B1 threshold lock | alone | caught (113 N·s) | caught (held) | caught (held) |
+| B2 always-on spring | nudged (41 N·s) | nudged (65) | nudged (108) | caught (232) |
+| CP CatchPoint | alone | nudged (2) | nudged (26) | caught (194) |
+
+Impulses are 75 kg-equivalent, over the 2.2 s after each push. B1 also has 2 locks with no push: after its first
+release the COM drifts > 8 cm from the feet centre and it re-locks, so it is still locked when pushes 3 and 4 arrive.
+
+**Visual elements:**
+- Camera: closer, lower front-3/4 view (azimuth 205°, elevation −7°). The robot fills about 63–68 % of the panel
+  height while standing.
+- 0.5× slow motion from 0.25 s before to 1.25 s after each push, with a SLOW-MO tag.
+- Red push arrow at the pelvis.
+- COM trail on the floor: teal dots, last 3.5 s.
+- Outcome banners that hold 1.2 s. FELL stays up for the rest of the clip.
+- Running tally chips, a level badge with the force readout, and a timeline strip per panel (green L0, amber L1,
+  red L2, dark red after a fall) with push ticks.
+- End card (3 s) with the per-push table, impulses and a one-line takeaway.
+
+**Reproduce:** `python v2/render_v2.py` (7 raw panels in parallel, ≈ 35 s), then `python v2/compose_v2.py`
+(overlays, end cards, GIFs, key stills). GIF cuts: see the ffmpeg palettegen commands in `compose_v2.make_gif`
+(`-ss 10 -t 10` for walker_4ways, `-ss 9 -t 11` for open_ground, 960 px, 10 fps).
+
+**Honest notes:**
+- One deterministic session per controller, at one gait phase. In the 56-push sweep above the outcomes depend
+  strongly on push phase, so treat these as illustrations, not statistics.
+- The CP nudge at push 2 is tiny (2 N·s-eq): it counts as "nudged" only because the SPEC threshold is 1 N·s.
+- The healthy-vs-patient contrast comes from our crude impairment (torque caps + delay) on a robot policy, not from
+  patient data.
+- After a catch release the robot policy is in an unusual state. B1's re-locks partly reflect this simulator's
+  release rule (re-centre then release).
+- The walker is still kinematic and visual only (no collision; the fallen B0 robot passes through the frame).

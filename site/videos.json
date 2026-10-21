@@ -1,36 +1,115 @@
 {
-  "_help": "Add a video by editing this file only. status 'ready' needs src (and poster); status 'soon' shows a placeholder. Paths are relative to the site root.",
-  "sections": [
+ "_help": "Add a video by editing this file only. status 'ready' needs src (and poster); status 'soon' shows a placeholder. Paths are relative to the site root.",
+ "sections": [
+  {
+   "id": "v2",
+   "title": "Long sessions: four pushes in a row",
+   "blurb": "New 25 s clips. Four 0.1 s lateral pushes toward the weak side (60 / 120 / 180 / 260 N), the same for every controller. Physics simulation of a robot-policy demonstration, not a patient model.",
+   "items": [
     {
-      "id": "physics",
-      "title": "Physics demo: impaired humanoid, real contact dynamics",
-      "blurb": "A pretrained Unitree G1 walking policy with a simulated weak leg is pushed toward its weak side. The same push, three controllers.",
-      "items": [
-        {"title": "Same push, three controllers", "desc": "No robot falls; the threshold lock catches; CatchPoint recovers it with a small nudge.", "src": "assets/video/compare_b.mp4", "poster": "assets/video/compare_b.jpg", "tag": "180 N push", "status": "ready", "wide": true},
-        {"title": "Before / after push-recovery fine-tuning (small push)", "desc": "Pretrained vs PPO fine-tuned policy, with and without CatchPoint.", "src": "assets/video/beforeafter_a.mp4", "poster": "assets/video/beforeafter_a.jpg", "tag": "100 N push", "status": "ready"},
-        {"title": "Before / after fine-tuning (medium push)", "desc": "The pretrained policy falls without help; CatchPoint nudges it back.", "src": "assets/video/beforeafter_b.mp4", "poster": "assets/video/beforeafter_b.jpg", "tag": "180 N push", "status": "ready"},
-        {"title": "Before / after fine-tuning (large push)", "desc": "Only the catch can save the pretrained policy.", "src": "assets/video/beforeafter_c.mp4", "poster": "assets/video/beforeafter_c.jpg", "tag": "300 N push", "status": "ready", "wide": true}
-      ]
+     "title": "Open ground: healthy vs patient",
+     "desc": "Same pushes, no walker: the healthy policy recovers, the impaired ‘patient’ falls at 180 N.",
+     "src": "assets/video/v2/open_ground_healthy_vs_patient.mp4",
+     "poster": "assets/video/v2/open_ground_healthy_vs_patient.jpg",
+     "tag": "v2 · 25 s",
+     "status": "ready",
+     "wide": true
     },
     {
-      "id": "kinematic",
-      "title": "Kinematic replay: the humanoid inside the D3 walker",
-      "blurb": "Visualisation of the Monte Carlo model trajectories (posed, not simulated with contact dynamics).",
-      "items": [
-        {"title": "Same push, four controllers", "desc": "No assist, threshold lock, impedance + lock, CatchPoint.", "src": "assets/video/compare_4controllers.mp4", "poster": "assets/video/compare_4controllers.jpg", "tag": "0.55 m/s", "status": "ready", "wide": true},
-        {"title": "Small push: self-recovery", "desc": "CatchPoint stays out of the way.", "src": "assets/video/cp_small.mp4", "poster": "assets/video/cp_small.jpg", "tag": "0.45 m/s", "status": "ready"},
-        {"title": "Bigger push: graded assist", "desc": "A nudge while the patient steps.", "src": "assets/video/cp_bigger.mp4", "poster": "assets/video/cp_bigger.jpg", "tag": "0.55 m/s", "status": "ready"}
-      ]
+     "title": "Walker, four ways",
+     "desc": "B1 locks after push 2 and re-locks without a push; B2 pulls all the time; CatchPoint lets it recover alone or with a light nudge and catches only the largest push.",
+     "note": "One deterministic run at a single gait phase; B1’s re-locks partly come from the release rule.",
+     "src": "assets/video/v2/walker_4ways.mp4",
+     "poster": "assets/video/v2/walker_4ways.jpg",
+     "img": "assets/img/walker_4ways_endcard.jpg",
+     "img_alt": "Session summary: outcome of each push for B0, B1, B2 and CatchPoint",
+     "tag": "v2 · 25 s",
+     "status": "ready",
+     "wide": true
     },
     {
-      "id": "v2",
-      "title": "New in v2",
-      "blurb": "Coming soon. These slots fill automatically once the files are added to the manifest.",
-      "items": [
-        {"title": "Open ground: healthy vs patient", "desc": "Physics demo without the walker.", "src": "assets/video/v2/open_ground_healthy_vs_patient.mp4", "poster": "assets/video/v2/open_ground_healthy_vs_patient.jpg", "tag": "v2", "status": "soon"},
-        {"title": "Walker, four ways", "desc": "Four walker behaviours on the same patient.", "src": "assets/video/v2/walker_4ways.mp4", "poster": "assets/video/v2/walker_4ways.jpg", "tag": "v2", "status": "soon"},
-        {"title": "The CatchPoint story", "desc": "Short narrated explainer.", "src": "assets/video/v2/cp_story.mp4", "poster": "assets/video/v2/cp_story.jpg", "tag": "v2", "status": "soon"}
-      ]
+     "title": "The CatchPoint story",
+     "desc": "CatchPoint only, with a caption for each level: hands off, nudge, catch.",
+     "src": "assets/video/v2/cp_story.mp4",
+     "poster": "assets/video/v2/cp_story.jpg",
+     "tag": "v2 · 25 s",
+     "status": "ready",
+     "wide": true
     }
-  ]
+   ]
+  },
+  {
+   "id": "physics",
+   "title": "Physics demo: impaired humanoid, real contact dynamics",
+   "blurb": "A pretrained Unitree G1 walking policy with a simulated weak leg is pushed toward its weak side. The same push, three controllers.",
+   "items": [
+    {
+     "title": "Same push, three controllers",
+     "desc": "Without assistance it falls; the threshold lock catches; CatchPoint recovers it with a small nudge.",
+     "src": "assets/video/compare_b.mp4",
+     "poster": "assets/video/compare_b.jpg",
+     "tag": "180 N push",
+     "status": "ready",
+     "wide": true
+    },
+    {
+     "title": "Before / after push-recovery fine-tuning (small push)",
+     "desc": "Pretrained vs PPO fine-tuned policy, with and without CatchPoint.",
+     "src": "assets/video/beforeafter_a.mp4",
+     "poster": "assets/video/beforeafter_a.jpg",
+     "tag": "100 N push",
+     "status": "ready"
+    },
+    {
+     "title": "Before / after fine-tuning (medium push)",
+     "desc": "The pretrained policy falls without help; CatchPoint nudges it back.",
+     "src": "assets/video/beforeafter_b.mp4",
+     "poster": "assets/video/beforeafter_b.jpg",
+     "tag": "180 N push",
+     "status": "ready"
+    },
+    {
+     "title": "Before / after fine-tuning (large push)",
+     "desc": "Only the catch can save the pretrained policy.",
+     "src": "assets/video/beforeafter_c.mp4",
+     "poster": "assets/video/beforeafter_c.jpg",
+     "tag": "300 N push",
+     "status": "ready",
+     "wide": true
+    }
+   ]
+  },
+  {
+   "id": "kinematic",
+   "title": "Kinematic replay: the humanoid inside the D3 walker",
+   "blurb": "Visualisation of the Monte Carlo model trajectories (posed, not simulated with contact dynamics).",
+   "items": [
+    {
+     "title": "Same push, four controllers",
+     "desc": "No assist, threshold lock, impedance + lock, CatchPoint.",
+     "src": "assets/video/compare_4controllers.mp4",
+     "poster": "assets/video/compare_4controllers.jpg",
+     "tag": "0.55 m/s",
+     "status": "ready",
+     "wide": true
+    },
+    {
+     "title": "Small push: self-recovery",
+     "desc": "CatchPoint stays out of the way.",
+     "src": "assets/video/cp_small.mp4",
+     "poster": "assets/video/cp_small.jpg",
+     "tag": "0.45 m/s",
+     "status": "ready"
+    },
+    {
+     "title": "Bigger push: graded assist",
+     "desc": "A nudge while the patient steps.",
+     "src": "assets/video/cp_bigger.mp4",
+     "poster": "assets/video/cp_bigger.jpg",
+     "tag": "0.55 m/s",
+     "status": "ready"
+    }
+   ]
+  }
+ ]
 }

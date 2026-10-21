@@ -91,7 +91,7 @@ escalates to a mechanically analysed catch when recovery is no longer feasible.<
 <tr>
 <td><strong>B Mechanical — &quot;body&quot;</strong></td>
 <td>Can the walker nudge and catch without tipping?</td>
-<td>D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope</td>
+<td>D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor, front gate) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope</td>
 <td>3</td>
 <td>~2.5 min</td>
 </tr>
@@ -121,10 +121,10 @@ escalates to a mechanically analysed catch when recovery is no longer feasible.<
 <p><strong>Shared:</strong> one slide template (deck/); each member answers Q&amp;A on their own segment.</p>
 <h2>Interface contracts (agree by Sat 24 Oct)</h2>
 <ul>
-<li><strong>D → B:</strong> nudge ≤ 150 N resultant; catch force limit F_lim = 300 N; arrest load cases from analysis/i2_sizing/data/results.json.</li>
-<li><strong>B → D/E:</strong> D3 contract in analysis/i2_sizing/report.md (F_lim, static SF 1.5 envelope, outrigger extension 0.25 m, anchor heights/positions, BWS cantilever anchor, lift cap, walker mass/CG).</li>
+<li><strong>D → B:</strong> nudge ≤ 150 N resultant; catch by passive slip brakes: ≥ 300 N along the fall, ≤ 380 N resultant; arrest load cases from analysis/i2_sizing/data/results.json.</li>
+<li><strong>B → D/E:</strong> D3 contract in analysis/i2_sizing/data/d3_contract.json (single geometry source for CAD + analysis) and report.md §8 (F_lim, static SF 1.5 envelope, outrigger extension 0.25 m, anchor heights/positions, BWS cantilever anchor, lift cap, walker mass/CG, front gate + latch interlock).</li>
 <li><strong>C → D:</strong> delay budget: sensing 0.03 s + actuation 0.07 s + lag 0.02 s; catch lock 0.28 s.</li>
-<li><strong>E → all:</strong> frozen evidence set — results/summary.csv, ci.csv, matched.csv, results/sizing.md, analysis/i2_sizing/data/results.json, results/i3_summary.md, physics_demo/{sweep_all,sweep_pareto}.json, physics_demo/ppo/compare.json. Slides quote only these, with denominators (e.g. &quot;804/814 caught trials&quot;).</li>
+<li><strong>E → all:</strong> frozen evidence set — results/summary.csv, ci.csv, matched.csv, results/sizing_D3_summary.md, analysis/i2_sizing/data/results.json, results/i3_summary.md, physics_demo/{sweep_all,sweep_pareto}.json, physics_demo/ppo/compare.json. Slides quote only these, with denominators (e.g. &quot;805/814 caught trials&quot;).</li>
 </ul>
 <h2>Timeline</h2>
 <div class="tw"><table>

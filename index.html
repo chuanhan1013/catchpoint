@@ -96,6 +96,8 @@ figure{margin:0}
 .vcard .meta{padding:14px 18px 16px}
 .vcard .meta h4{margin:0 0 4px;font-size:16.5px}
 .vcard .meta p{margin:0;font-size:14.5px;color:var(--muted)}
+.vcard .meta p.note{margin-top:6px;font-size:13.5px;font-style:italic}
+.endcard{width:100%;height:auto;border-top:1px solid var(--border)}
 .pill{display:inline-block;font:500 11.5px/1 "IBM Plex Mono",monospace;padding:4px 8px;border-radius:999px;background:var(--tealbg);color:var(--accent);margin-bottom:8px}
 .slot{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#9fb3ba;font:500 14px "IBM Plex Mono",monospace;border-bottom:1px dashed var(--border);background:repeating-linear-gradient(45deg,#0f1b1f,#0f1b1f 12px,#121f24 12px,#121f24 24px)}
 .slot b{font-size:17px;color:#cfe0e5}
@@ -235,7 +237,7 @@ footer ul{margin:0;padding-left:18px}
         <div class="big" id="bigstat">54.6% vs 9.6%</div>
         <p style="margin:8px 0 0;font-size:15px" id="bigtxt"></p>
       </div>
-      <p class="caveat"><b>Capture-point threshold:</b> similar solo recoveries (31.8%) but harness in 63.7% vs 40.7%. 95% CIs up to &plusmn;3 pp. Simplified model, not clinical data. Selected operating points: threshold lock 0.05 m, capture-point 0.08 m, spring K = 200 N/m, CatchPoint margin 0.03.</p>
+      <p class="caveat"><b>Capture-point threshold:</b> similar solo recoveries (31.8%) but harness in 63.7% vs 40.7%. 95% CIs up to &plusmn;4 pp. Simplified model, not clinical data. Selected operating points: threshold lock 0.05 m, capture-point 0.08 m, spring K = 200 N/m, CatchPoint margin 0.03.</p>
     </div>
   </div>
 
@@ -260,8 +262,10 @@ footer ul{margin:0;padding-left:18px}
       </div>
       <span class="warn">UNBUILT &middot; UNVALIDATED &middot; STATICS + SIMULATION ONLY</span>
       <p class="quote">Passive slip brakes (corner 150, lateral 155, centre 120 N) give &gt;= 300 N along the fall direction and &lt;= 380 N horizontal resultant; the perpendicular component is up to 178 N. The walker slides at 465 N (259 N if mu = 0.3). The catch engages in 814 of 2000 trials; falls 95/2000 (4.75%) become at worst 104/2000 (5.2%): a small increase, so never claim fall reduction. Source: <a href="https://github.com/chuanhan1013/catchpoint/blob/main/results/sizing_D3_summary.md">results/sizing_D3_summary.md</a>.</p>
+      <p class="quote">11. Front-centre anchor: carried by a hinged front gate arm (tube 40 x 20 x 2 mm 6061-T6 aluminium) that latches onto the front-left column; the controller refuses to arm unless the gate is latched. Design cable force 149.6 N, hinge/latch reaction 75.4 N, peak stress 51.3 MPa, yield safety factor 4.68, latch rated &gt;= 224.4 N. Source: data/gate.json (gate_check.py), section 8b of report.md.</p>
     </div>
   </div>
+  <figure class="fig" style="margin-top:24px;max-width:760px"><img src="assets/img/entry_d3.jpg" alt="Front gate of the D3 walker swung open for entry" loading="lazy"><figcaption>Front gate swings open for entry; the system only arms when the gate is latched (interlock). Concept render, unbuilt and unvalidated.</figcaption></figure>
 </div></section>
 
 <section id="simulator" class="alt"><div class="wrap">
@@ -286,6 +290,7 @@ footer ul{margin:0;padding-left:18px}
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/analysis/i2_sizing/report.md"><b>I2 sizing report</b><span>Statics, slip brakes and arrest coverage for design D3 (report.md)</span></a>
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/SPEC.md"><b>SPEC</b><span>Model, controllers, forces and delays</span></a>
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/docs/TEAM_PLAN.md"><b>Team plan (Markdown)</b><span>Roles, contracts and schedule</span></a>
+    <a class="doc" href="docs/TEAM_PLAN_zh-Hans.pdf"><b>Team plan (简体中文 PDF)</b><span>Simplified Chinese version of the team plan</span></a>
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/docs/novelty_and_sources.md"><b>Novelty and sources</b><span>Prior work and citations behind the problem stats</span></a>
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint/blob/main/physics_demo/README.md"><b>Physics demo README</b><span>Protocol, calibration and limits</span></a>
     <a class="doc" href="https://github.com/chuanhan1013/catchpoint"><b>Source code</b><span>sim/, analysis/, physics_demo/ on GitHub</span></a>
@@ -341,7 +346,7 @@ const h1=v=>(Math.round(v*10)/10).toFixed(1);
     const m=await (await fetch('site/videos.json',{cache:'no-cache'})).json();
     host.innerHTML=m.sections.map(s=>`<div class="vsec"><h3>${s.title}</h3><p class="b">${s.blurb||''}</p><div class="vgrid${s.id==='v2'?'':' two'}">${
       s.items.map(v=>{
-        const meta=`<div class="meta">${v.tag?`<span class="pill">${v.tag}</span>`:''}<h4>${v.title}</h4><p>${v.desc||''}</p></div>`;
+        const meta=`<div class="meta">${v.tag?`<span class="pill">${v.tag}</span>`:''}<h4>${v.title}</h4><p>${v.desc||''}</p>${v.note?`<p class="note">${v.note}</p>`:''}</div>${v.img?`<img class="endcard" src="${v.img}" alt="${v.img_alt||''}" loading="lazy">`:''}`;
         const media=v.status==='ready'
           ?`<video controls muted playsinline loop preload="metadata" poster="${v.poster||''}"><source src="${v.src}" type="video/mp4"></video>`
           :`<div class="slot"><b>Coming soon</b><span>${v.src.split('/').pop()}</span></div>`;
