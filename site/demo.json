@@ -1,0 +1,13 @@
+{
+ "_help": "Drives the 'Walking demo (v3)' section of demo.html. To add a video: append an object to 'v3' with status 'ready', src (mp4, path relative to the site root), poster (jpg, optional), title, desc, optional tag and note. Entries with status 'soon' are ignored; if no entry is 'ready' the page shows the 'coming soon' placeholder. No HTML edit needed.",
+ "v3": [
+  {
+   "title": "Walking demo (v3)",
+   "desc": "Placeholder: the walking demo video will appear here once ready.",
+   "src": "",
+   "poster": "",
+   "tag": "v3",
+   "status": "soon"
+  }
+ ]
+}

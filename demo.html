@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatchPoint: Demo for the talk</title>
+<meta name="description" content="CatchPoint presentation companion: full-size figures, hardware views, physics demo videos, the interactive simulator and results. Simulation and design analysis only.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#1F6F78; --green:#3A9D5D; --amber:#E0A030; --red:#C8443A;
+  --bg:#f6f8f9; --surface:#ffffff; --surface2:#eaf0f2; --fg:#16242b; --muted:#50636c; --border:#cfd9de;
+  --accent:#1F6F78; --accent-fg:#ffffff; --tealbg:#e2f0f1; --shadow:0 1px 2px rgba(20,40,50,.06),0 8px 24px rgba(20,40,50,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1619; --surface:#182226; --surface2:#222f35; --fg:#e4edf0; --muted:#a9bcc4; --border:#34454d;
+    --accent:#62b2b4; --accent-fg:#0b1214; --tealbg:#173238; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video,iframe{max-width:100%;display:block}
+a{color:var(--accent);text-underline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+h1,h2,h3,h4{line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5vw,48px)}
+h2{font-size:clamp(24px,3.6vw,34px);margin-bottom:8px}
+.eyebrow{font:500 12.5px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lead{color:var(--muted);margin:8px 0 0;max-width:760px}
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+nav .wrap{display:flex;align-items:center;gap:16px;height:54px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav b{margin-right:4px}
+nav a{font-size:14.5px;color:var(--muted);text-decoration:none}
+nav a:hover,nav a.on{color:var(--accent)}
+nav a.on{font-weight:600}
+nav kbd{font:500 11px "IBM Plex Mono",monospace;border:1px solid var(--border);border-radius:5px;padding:1px 5px;margin-right:4px;color:var(--muted)}
+nav .back{margin-left:auto}
+header.top{padding:34px 0 10px}
+section{padding:44px 0;border-top:1px solid var(--border)}
+section.alt{background:var(--surface2)}
+.grid{display:grid;gap:18px;margin-top:20px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g1{grid-template-columns:1fr}
+.fig{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.fig.span{grid-column:1/-1}
+.fig img[data-lb]{cursor:zoom-in;width:100%;height:auto;background:#fff}
+.fig figcaption{padding:11px 16px 13px;font-size:14.5px;color:var(--muted)}
+.fig figcaption b{color:var(--fg);display:block;font-size:15.5px}
+.vwrap{position:relative;cursor:pointer;background:#0b1316}
+.vwrap img{width:100%;height:auto;aspect-ratio:16/9;object-fit:contain}
+.fig.span .vwrap img{max-height:560px}
+.vwrap .play{position:absolute;inset:0;margin:auto;width:74px;height:74px;border-radius:50%;background:rgba(0,0,0,.55);border:3px solid #fff;display:flex;align-items:center;justify-content:center}
+.vwrap .play::after{content:"";border-left:24px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.qual{margin:18px 0 0;padding:12px 16px;border-left:5px solid var(--amber);background:var(--surface);border-radius:10px;font-size:14.5px;color:var(--muted)}
+.note{font-style:italic;font-size:13.5px}
+.slot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:200px;padding:20px;text-align:center;color:#9fb3ba;font:500 14px "IBM Plex Mono",monospace;background:repeating-linear-gradient(45deg,#0f1b1f,#0f1b1f 12px,#121f24 12px,#121f24 24px)}
+.slot b{font-size:18px;color:#cfe0e5}
+.simbox{margin-top:20px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.simbox iframe{width:100%;height:min(82vh,760px);border:0}
+.btn{display:inline-block;margin-top:14px;padding:10px 20px;border-radius:999px;background:var(--accent);color:var(--accent-fg);font-weight:600;text-decoration:none;font-size:15px}
+.foot{padding:30px 20px 50px;color:var(--muted);font-size:14px}
+#lb{position:fixed;inset:0;z-index:100;background:rgba(5,10,12,.95);display:none;flex-direction:column;color:#fff}
+#lb.open{display:flex}
+#lb .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px 56px}
+#lb .stage img,#lb .stage video{max-width:100%;max-height:100%;object-fit:contain;background:#000}
+#lb .stage img{background:#fff}
+#lb .cap{padding:10px 70px 16px;text-align:center;font-size:15px;color:#d5e3e7;max-height:22vh;overflow:auto}
+#lb .cap b{display:inline;margin-right:8px;color:#fff}
+#lb button{position:absolute;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer}
+#lb .x{top:10px;right:12px}
+#lb .pv{left:8px;top:50%;margin-top:-22px}
+#lb .nx{right:8px;top:50%;margin-top:-22px}
+#lb .cnt{z-index:2;text-shadow:0 0 4px #000;position:absolute;top:16px;left:18px;font:500 13px "IBM Plex Mono",monospace;color:#9fb3ba}
+@media (max-width:760px){
+  body{font-size:16px}
+  .g2{grid-template-columns:1fr}
+  section{padding:32px 0}
+  nav kbd{display:none}
+  #lb .stage{padding:10px 8px}
+  #lb .cap{padding:8px 14px 14px}
+  #lb .pv,#lb .nx{top:auto;bottom:70px;margin:0}
+  .vwrap .play{width:56px;height:56px}
+}
+@media (max-height:760px) and (min-width:761px){
+  section{padding:34px 0}
+  header.top{padding:22px 0 6px}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap" id="navw">
+  <b>CatchPoint</b>
+  <a href="#a" data-s="a"><kbd>1</kbd>Problem</a>
+  <a href="#d" data-s="d"><kbd>2</kbd>Decision &amp; simulator</a>
+  <a href="#b" data-s="b"><kbd>3</kbd>Hardware</a>
+  <a href="#c" data-s="c"><kbd>4</kbd>Physics demos</a>
+  <a href="#e" data-s="e"><kbd>5</kbd>Results</a>
+  <a class="back" href="index.html">&larr; Main page</a>
+</div></nav>
+
+<header class="top"><div class="wrap">
+  <div class="eyebrow">NUS ME5412 &middot; presentation companion</div>
+  <h1>Demo for the talk</h1>
+  <p class="lead">Full-size versions of what the slides can only show as stills. Click any image or video to enlarge; use &larr; &rarr; to move, Esc to close, keys 1&ndash;5 to jump between sections. Simulation and design analysis only.</p>
+</div></header>
+
+<section id="a"><div class="wrap">
+  <div class="eyebrow">A &middot; Problem &amp; what is new</div>
+  <h2>A fixed threshold cannot tell who can still recover</h2>
+  <div class="grid g2">
+    <figure class="fig"><img data-lb src="assets/img/threshold_problem.jpg" alt="Why a fixed threshold fails" loading="lazy"><figcaption><b>The threshold problem</b>Same perturbation, different recoverability: a fixed trigger helps too early or too late.</figcaption></figure>
+    <figure class="fig"><img data-lb src="assets/innovation_matrix.png" alt="Innovation matrix" loading="lazy"><figcaption><b>What is new</b>Innovation matrix: how CatchPoint differs from existing balance-training systems.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="d" class="alt"><div class="wrap">
+  <div class="eyebrow">D &middot; How it decides</div>
+  <h2>Hands off, graded nudge, catch</h2>
+  <div class="grid g2">
+    <figure class="fig"><img data-lb src="assets/img/how_it_decides.png" alt="How CatchPoint decides" loading="lazy"><figcaption><b>How it decides</b>Recoverability check: can the patient&rsquo;s own step make it?</figcaption></figure>
+    <figure class="fig"><img data-lb src="assets/img/cp_three_states.png" alt="The three CatchPoint states" loading="lazy"><figcaption><b>Three states</b>Hands off &middot; graded pelvic nudge (&le;150 N) &middot; cable catch only when needed.</figcaption></figure>
+  </div>
+  <h2 style="margin-top:36px;font-size:clamp(20px,3vw,26px)">Interactive simulator</h2>
+  <div class="simbox"><iframe src="site/simulator.html" title="CatchPoint interactive simulator" loading="lazy"></iframe></div>
+  <a class="btn" href="site/simulator.html" target="_blank" rel="noopener">Open simulator full screen &#8599;</a>
+</div></section>
+
+<section id="b"><div class="wrap">
+  <div class="eyebrow">B &middot; Hardware</div>
+  <h2>Design D3: 8-cable pelvic interface</h2>
+  <p class="lead">Dual-mode spools (servo + passive slip brake), latched front gate, outriggers, overhead body-weight cable.</p>
+  <div class="grid g2">
+    <figure class="fig span"><img data-lb src="assets/img/hero_d3.jpg" alt="Hero render of design D3" loading="lazy"><figcaption><b>Design D3, overview</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig"><img data-lb src="assets/img/annotated_d3.jpg" alt="Annotated D3" loading="lazy"><figcaption><b>Annotated D3</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig"><img data-lb src="assets/img/entry_d3.jpg" alt="D3 entry via the front gate" loading="lazy"><figcaption><b>Entry through the latched gate</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig span"><img data-lb src="assets/img/exploded_walker.jpg" alt="Exploded view of the walker" loading="lazy"><figcaption><b>Exploded walker</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig span"><img data-lb src="assets/img/exploded_spool.jpg" alt="Exploded view of the spool" loading="lazy"><figcaption><b>Exploded spool</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig span"><img data-lb src="assets/img/ortho_views.jpg" alt="Orthographic views of D3" loading="lazy"><figcaption><b>Orthographic views</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+    <figure class="fig span"><img data-lb src="assets/img/modes_closeup.jpg" alt="Close-up of spool modes" loading="lazy"><figcaption><b>Spool modes, close-up</b>Concept render of design D3: unbuilt and unvalidated.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="c" class="alt"><div class="wrap">
+  <div class="eyebrow">C &middot; Physics demo videos</div>
+  <h2>Same pushes, different controllers</h2>
+  <p class="qual">Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</p>
+  <div class="grid g2" id="vids">
+    <figure class="fig span"><div class="vwrap" data-lb data-video="assets/video/v2/open_ground_healthy_vs_patient.mp4"><img src="assets/video/v2/open_ground_healthy_vs_patient.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Open ground: healthy vs patient (25 s)</b>Same pushes, no walker: the healthy policy recovers, the impaired &lsquo;patient&rsquo; falls at 180 N. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig span"><div class="vwrap" data-lb data-video="assets/video/v2/walker_4ways.mp4"><img src="assets/video/v2/walker_4ways.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Walker, four ways (25 s)</b>Four 0.1 s lateral pushes (60 / 120 / 180 / 260 N) for B0, B1, B2 and CatchPoint. One deterministic run at a single gait phase. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig span"><img data-lb src="assets/img/walker_4ways_endcard.jpg" alt="Session summary: outcome of each push for B0, B1, B2 and CatchPoint" loading="lazy"><figcaption><b>Walker, four ways: session summary</b>Outcome of each push for B0, B1, B2 and CatchPoint (simulation).</figcaption></figure>
+    <figure class="fig span"><div class="vwrap" data-lb data-video="assets/video/v2/cp_story.mp4"><img src="assets/video/v2/cp_story.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>The CatchPoint story (25 s)</b>CatchPoint only, with a caption for each level: hands off, nudge, catch. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig span"><div class="vwrap" data-lb data-video="assets/video/compare_b.mp4"><img src="assets/video/compare_b.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Single push (180 N), three controllers</b>Without assistance it falls; the threshold lock catches; CatchPoint recovers it with a small nudge. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig"><div class="vwrap" data-lb data-video="assets/video/beforeafter_a.mp4"><img src="assets/video/beforeafter_a.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Before / after PPO fine-tuning, 100 N</b>Pretrained vs fine-tuned policy, with and without CatchPoint. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig"><div class="vwrap" data-lb data-video="assets/video/beforeafter_b.mp4"><img src="assets/video/beforeafter_b.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Before / after PPO fine-tuning, 180 N</b>The pretrained policy falls without help; CatchPoint nudges it back. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+    <figure class="fig span"><div class="vwrap" data-lb data-video="assets/video/beforeafter_c.mp4"><img src="assets/video/beforeafter_c.jpg" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>Before / after PPO fine-tuning, 300 N</b>Only the catch can save the pretrained policy. Robot-policy demonstration (pretrained Unitree G1 policy in MuJoCo) &mdash; not a patient model; calibrated on the same push grid.</figcaption></figure>
+  </div>
+  <h2 style="margin-top:40px;font-size:clamp(20px,3vw,26px)">Walking demo (v3)</h2>
+  <div class="grid g1" id="v3"><figure class="fig"><div class="slot"><b>Walking demo (v3) &mdash; coming soon</b><span>Will appear here automatically when it is added to site/demo.json</span></div></figure></div>
+</div></section>
+
+<section id="e"><div class="wrap">
+  <div class="eyebrow">E &middot; Results</div>
+  <h2>What the simulation shows</h2>
+  <div class="grid g2">
+    <figure class="fig"><img data-lb src="results/figs/pareto.png" alt="Pareto plot" loading="lazy"><figcaption><b>Pareto front</b>Simulation, 2000-trial Monte Carlo, seed 5412.</figcaption></figure>
+    <figure class="fig"><img data-lb src="results/figs/severity.png" alt="Severity plot" loading="lazy"><figcaption><b>Outcome by push severity</b>Simulation, 2000-trial Monte Carlo, seed 5412.</figcaption></figure>
+    <figure class="fig"><img data-lb src="results/figs/delay.png" alt="Delay plot" loading="lazy"><figcaption><b>Sensitivity to delay</b>Simulation, 2000-trial Monte Carlo, seed 5412.</figcaption></figure>
+    <figure class="fig"><img data-lb src="results/figs/timeline.png" alt="Timeline plot" loading="lazy"><figcaption><b>Event timeline</b>Simulation, 2000-trial Monte Carlo, seed 5412.</figcaption></figure>
+  </div>
+</div></section>
+
+<div class="wrap foot">Simulation and design analysis only; no clinical or prototype results. Hardware views are concept renders of design D3 (unbuilt and unvalidated).</div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged view">
+  <span class="cnt" id="lbCnt"></span>
+  <button class="x" id="lbX" aria-label="Close">&times;</button>
+  <button class="pv" id="lbP" aria-label="Previous">&#8249;</button>
+  <button class="nx" id="lbN" aria-label="Next">&#8250;</button>
+  <div class="stage" id="lbS"></div>
+  <div class="cap" id="lbC"></div>
+</div>
+
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)};
+  var secs=['a','d','b','c','e'];
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
+  /* v3 videos come from site/demo.json (status "ready" entries) */
+  fetch('site/demo.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+    var ready=(j.v3||[]).filter(function(v){return v.status==='ready'&&v.src});
+    if(!ready.length)return;
+    $('#v3').innerHTML=ready.map(function(v){
+      return '<figure class="fig span"><div class="vwrap" data-lb data-video="'+esc(v.src)+'"><img src="'+esc(v.poster||'')+'" alt="" loading="lazy"><span class="play"></span></div><figcaption><b>'+esc(v.title)+(v.tag?' ('+esc(v.tag)+')':'')+'</b>'+esc(v.desc)+(v.note?' <span class="note">'+esc(v.note)+'</span>':'')+'</figcaption></figure>';
+    }).join('');
+  }).catch(function(){});
+
+  var lb=$('#lb'),stage=$('#lbS'),cap=$('#lbC'),cnt=$('#lbCnt'),idx=-1,items=[],lastFocus=null;
+  function collect(){items=[].slice.call(document.querySelectorAll('[data-lb]'))}
+  function capOf(el){var f=el.closest('figure');var c=f&&f.querySelector('figcaption');return c?c.innerHTML:''}
+  function show(i){
+    collect(); if(!items.length)return;
+    idx=(i+items.length)%items.length;
+    var el=items[idx], m;
+    stage.innerHTML='';
+    if(el.dataset.video){m=document.createElement('video');m.src=el.dataset.video;m.controls=true;m.muted=true;m.autoplay=true;m.playsInline=true;m.loop=true;}
+    else{m=document.createElement('img');m.src=el.currentSrc||el.src;m.alt=el.alt||'';}
+    stage.appendChild(m);
+    if(m.play){var p=m.play();if(p&&p.catch)p.catch(function(){});}
+    cap.innerHTML=capOf(el);
+    cnt.textContent=(idx+1)+' / '+items.length;
+  }
+  function open(i){lastFocus=document.activeElement;lb.classList.add('open');document.body.style.overflow='hidden';show(i)}
+  function close(){var v=stage.querySelector('video');if(v)v.pause();stage.innerHTML='';lb.classList.remove('open');document.body.style.overflow='';if(lastFocus&&lastFocus.focus){try{lastFocus.focus()}catch(e){}}}
+  document.addEventListener('click',function(e){
+    var t=e.target.closest&&e.target.closest('[data-lb]');
+    if(t&&!lb.contains(t)){collect();open(items.indexOf(t))}
+  });
+  $('#lbX').onclick=close;
+  $('#lbP').onclick=function(){show(idx-1)};
+  $('#lbN').onclick=function(){show(idx+1)};
+  lb.addEventListener('click',function(e){if(e.target===lb||e.target===stage)close()});
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    if(lb.classList.contains('open')){
+      if(e.key==='Escape'){close();e.preventDefault()}
+      else if(e.key==='ArrowRight'){show(idx+1);e.preventDefault()}
+      else if(e.key==='ArrowLeft'){show(idx-1);e.preventDefault()}
+      return;
+    }
+    var tg=(e.target.tagName||'').toLowerCase();
+    if(tg==='input'||tg==='textarea'||tg==='select')return;
+    if(e.key>='1'&&e.key<='5'){var el=document.getElementById(secs[+e.key-1]);if(el)el.scrollIntoView({behavior:'smooth'})}
+  });
+  var links=[].slice.call(document.querySelectorAll('nav a[data-s]'));
+  function spy(){
+    var y=window.scrollY+120,cur=secs[0];
+    secs.forEach(function(s){var el=document.getElementById(s);if(el&&el.offsetTop<=y)cur=s});
+    links.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  }
+  window.addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+</body>
+</html>
