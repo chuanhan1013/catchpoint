@@ -2,12 +2,40 @@
  "_help": "Drives the 'Walking demo (v3)' section of demo.html. To add a video: append an object to 'v3' with status 'ready', src (mp4, path relative to the site root), poster (jpg, optional), title, desc, optional tag and note. Entries with status 'soon' are ignored; if no entry is 'ready' the page shows the 'coming soon' placeholder. No HTML edit needed.",
  "v3": [
   {
-   "title": "Walking demo (v3)",
-   "desc": "Placeholder: the walking demo video will appear here once ready.",
-   "src": "",
-   "poster": "",
-   "tag": "v3",
-   "status": "soon"
+   "title": "No push needed: the impaired gait shows on its own",
+   "desc": "Walking at 0.3 m/s with no pushes. The patient version (right-leg torque ×0.5, 60 ms delay, stiff paretic knee) bends the paretic knee about 36° vs 46° healthy and falls on its own in 13 of 20 walks; the healthy policy in 0 of 20.",
+   "note": "Robot-policy demonstration (pretrained Unitree G1 walking policy in MuJoCo), not a patient model.",
+   "src": "assets/video/v3/open_ground_walking_unperturbed.mp4",
+   "poster": "assets/video/v3/open_ground_walking_unperturbed.jpg",
+   "tag": "v3 · no pushes",
+   "status": "ready"
+  },
+  {
+   "title": "Walking in the walker: four ways (held-out test)",
+   "desc": "Pushed mid-stride toward the weak side. Held-out test, 48 pushes at timings and two forces not used for tuning: CatchPoint 0 falls, 7 catch-locks, 33 nudges; threshold lock 5 falls, 12 catch-locks; no robot 17 falls.",
+   "note": "Robot-policy demonstration (pretrained Unitree G1 walking policy in MuJoCo), not a patient model.",
+   "src": "assets/video/v3/walker_walking_4ways.mp4",
+   "poster": "assets/video/v3/walker_walking_4ways.jpg",
+   "tag": "v3 · held-out",
+   "status": "ready"
+  },
+  {
+   "title": "Pushed while walking, no walker: healthy vs patient",
+   "desc": "Same walking policy, single lateral pushes mid-stride. Patient: right-leg torque ×0.6 plus 40 ms delay; the healthy policy keeps walking, the patient falls.",
+   "note": "Robot-policy demonstration (pretrained Unitree G1 walking policy in MuJoCo), not a patient model.",
+   "src": "assets/video/v3/open_ground_walking_healthy_vs_patient.mp4",
+   "poster": "assets/video/v3/open_ground_walking_healthy_vs_patient.jpg",
+   "tag": "v3 · pushes",
+   "status": "ready"
+  },
+  {
+   "title": "No pushes in the walker: spontaneous trips, four controllers",
+   "desc": "An honest limitation: with no pushes the patient mostly trips forward, which CatchPoint was not tuned for. Over 20 walks: CatchPoint 9 with a fall, threshold lock 13, no robot 13; the always-on spring avoids falls but the patient walks only 0.8 m instead of about 9 m. In the clip shown, CatchPoint falls.",
+   "note": "Robot-policy demonstration (pretrained Unitree G1 walking policy in MuJoCo), not a patient model.",
+   "src": "assets/video/v3/walker_walking_selfinduced_4ways.mp4",
+   "poster": "assets/video/v3/walker_walking_selfinduced_4ways.jpg",
+   "tag": "v3 · limitation",
+   "status": "ready"
   }
  ]
 }

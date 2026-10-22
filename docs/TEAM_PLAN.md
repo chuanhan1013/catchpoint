@@ -27,13 +27,29 @@ escalates to a mechanically analysed catch when recovery is no longer feasible.
 
 | Role | Question | Definition of done | Slides | Talk |
 |---|---|---|---|---|
-| **A Clinical — "why"** | What goes wrong for patients today, and how would we know we helped? | Problem slide (cited stats); existing-solutions table with gaps; outcome measures (Berg Balance Scale, fall count, reactive-step metrics); safety/ethics; limitations & next steps; **leads the final claim audit** | 3 | ~3 min |
-| **B Mechanical — "body"** | Can the walker nudge and catch without tipping? | D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor, front gate) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope | 3 | ~2.5 min |
-| **C Sensing — "eyes"** | How does the robot know the patient's state fast enough? | Sensor layout (foot LiDAR, cable-length pelvis tracking, load cells, IMU); XCoM estimation + delay compensation diagram; delay budget; calibration protocol; **records the demo video** from the interactive simulator | 2 | ~2 min |
-| **D Control — "brain"** | When does it act, and how much? | L0/L1/L2 decision flow; minimum-force rule (plain language + appendix equation); timing diagram (decision → force → brake); safety argument; low-level admittance | 3 | ~3 min |
-| **E Simulation — "proof"** | Does it beat today's approach? | Frozen Monte Carlo results (operating points, counts, CIs, ablations CP-pop / CP-noDC / XCoM-only); I3 appendix slide (optional, with caveats) | 2–3 | ~2.5 min |
+| **A Clinical — "why"** | What goes wrong for patients today, and how would we know we helped? | Problem slide (cited stats); existing-solutions table with gaps; outcome measures (Berg Balance Scale, fall count, reactive-step metrics); safety/ethics; limitations & next steps; summary; **leads the final claim audit** | 3 (2–4) | ~3 min |
+| **B Mechanical — "body"** | Can the walker nudge and catch without tipping? | D3 CAD (cable interface, mixed-height anchors, outriggers, cantilevered BWS anchor, front gate) reconciled with analysis/i2_sizing; FBDs; tension/brake/tip-margin table; allowable arrest envelope | 6 (8–13) | ~3 min |
+| **C Sensing — "eyes"** | How does the robot know the patient's state fast enough? | Sensor layout (foot LiDAR, cable-length pelvis tracking, load cells, IMU); XCoM estimation + delay compensation diagram; delay budget; calibration protocol; **records the demo video** from the interactive simulator | 5 (14–18: sensing + physics demo + walking demo) | ~3 min |
+| **D Control — "brain"** | When does it act, and how much? | L0/L1/L2 decision flow; minimum-force rule (plain language + appendix equation); timing diagram (decision → force → brake); safety argument; low-level admittance; innovation matrix + three contributions | 3 (5–7) | ~3.5 min |
+| **E Simulation — "proof"** | Does it beat today's approach? | Frozen Monte Carlo results (operating points, counts, CIs, ablations CP-pop / CP-noDC / XCoM-only); physics demo; I3 appendix slide (optional, with caveats) | 4 (19–22: results, limitations, validation plan, summary) | ~3.5 min |
+
+**Talk order (one block per presenter; A opens, E closes):** A (2–4) → D (5–7) → B (8–13) → C (14–18) → E (19–22). Four handovers; E closes; every block 3–3.5 min. Concise table: docs/ROLES.md.
 
 **Shared:** one slide template (deck/); each member answers Q&A on their own segment.
+
+## Status on 22 Oct and handover ("take over, verify, complete, present")
+Most technical content already exists in the repo. Each member now **takes over** their module: reproduces or reads it, checks
+every number they will say against the frozen evidence files, fills the missing pieces below, and presents and defends it.
+Role D is taken by Chuanhan (control); he also acts as technical integrator (repo, numbers, final consistency checks), while A
+still leads the claim-to-evidence audit.
+
+| Role | Already built (in the repo) | Your job now | Still missing |
+|---|---|---|---|
+| A Clinical | Problem stats with sources; existing-solutions table; limitations | Read research/*.md; own the problem, gap and limitations slides | Clinical evaluation plan slide (proposed pilot protocol, outcome measures, safety stop rules, ethics) |
+| B Mechanical | D3 CAD + front gate; renders; sizing analysis (analysis/i2_sizing, report.md) | Re-run make_report.py; understand FBDs, tip margin, slip brakes, gate load | One slide that explains the load path in plain words; part list / cost estimate |
+| C Sensing | Sensor list in SPEC §3; delay values | Own the sensing & estimation slide; record the final demo video | Sensor layout + estimation pipeline + delay budget + calibration protocol figure |
+| D Control (Chuanhan) | Controller code (sim/catchpoint), Monte Carlo, physics-demo controller | Own the method slides; lead Q&A on control | Control architecture: decision flow + timing diagram on a main slide |
+| E Simulation | Monte Carlo results + CIs; physics demo v1/v2 + PPO; videos | Reproduce run_all.py and one physics video; own the results slides | Short "how to read the results" narration; check every quoted number |
 
 ## Interface contracts (agree by Sat 24 Oct)
 - **D → B:** nudge ≤ 150 N resultant; catch by passive slip brakes: ≥ 300 N along the fall, ≤ 380 N resultant; arrest load cases from analysis/i2_sizing/data/results.json.
